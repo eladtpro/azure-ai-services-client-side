@@ -79,20 +79,29 @@ export async function summarize(entries, language) {
             ]
         };
         let data = JSON.stringify(conversation);
+        // const sumRes = await axios.post('/api/summarize', data);
+        // return sumRes.data;
 
         const headers = {
             headers: {
                 'Ocp-Apim-Subscription-Key': config.languageKey,
                 'Content-type': 'application/json',
-                'X-ClientTraceId': uuidv4().toString()
+                // 'X-ClientTraceId': uuidv4().toString()
             }
         };
 
-        let res = await axios.post(`https://${config.languageEndpoint}language/analyze-conversations/jobs?api-version=2023-11-15-preview`, data, headers);
+        let res = await axios.post(`${config.languageEndpoint}language/analyze-conversations/jobs?api-version=2023-11-15-preview`, data, headers);
         const jobId = res.headers['operation-location'];
 
-        res = await axios.get(`https://${config.languageEndpoint}language/analyze-conversations/jobs/${jobId}?api-version=2023-11-15-preview`, headers);
-        return res.data.tasks;
+        let completed = false
+        while (!completed) {
+            res = await axios.get(`${jobId}`, headers);
+            completed = res.data.tasks.completed > 0;
+        }
+
+        // res = await axios.get(`${config.languageEndpoint}language/analyze-conversations/jobs/${jobId}?api-version=2023-11-15-preview`, headers);
+        const sumRes = JSON.stringify(res.data.tasks.items[0].results.conversations[0].summaries);
+        return sumRes;
     } catch (err) {
         console.log(err.message);
         return `Error summarizing text. ${err.message}`;

@@ -27,8 +27,8 @@ export default function App() {
     const [summarization, setSummarization] = useState('');
     const [recognizedText, setRecognizedText] = useState('');
     const [recognizingText, setRecognizingText] = useState('');
-    const [language, setLanguage] = useState('en-US');
-    const [translateLanguage, setTranslateLanguage] = useState('he-IL');
+    const [language, setLanguage] = useState('he-IL');
+    const [translateLanguage, setTranslateLanguage] = useState('en-US');
     const [recognizing, setRecognizing] = useState(false);
     const [translating, setTranslating] = useState(false);
     const [summarizing, setSummarizing] = useState(false);

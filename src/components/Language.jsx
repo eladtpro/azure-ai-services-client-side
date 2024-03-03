@@ -21,7 +21,7 @@ export default function Language({ lalbel, value, onChange, helper }) {
                 <MenuItem value="ru-RU">Russian</MenuItem>
                 <MenuItem value="am-ET">Amharic</MenuItem>
             </Select>
-            <FormHelperText>With label + helper text</FormHelperText>
+            <FormHelperText>{helper}</FormHelperText>
         </FormControl>
     );
 }

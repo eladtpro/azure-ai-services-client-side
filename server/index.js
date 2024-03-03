@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const pino = require('express-pino-logger')();
 const { AzureKeyCredential, TextAnalysisClient } = require("@azure/ai-language-text");
@@ -46,54 +47,56 @@ app.get('/api/get-speech-token', async (req, res, next) => {
     }
 });
 
-app.get('/api/summarize', async (req, res, next) => {
+app.post('/api/summarize', async (req, res, next) => {
 // https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/quickstart?tabs=document-summarization%2Clinux&pivots=programming-language-javascript
 
 const endpoint = process.env.LANGUAGE_ENDPOINT;
 const apiKey = process.env.LANGUAGE_KEY;
+    // https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/how-to/conversation-summarization
+    try {
+      // const conversation = {
+      //     displayName: 'Conversation Summarization',
+      //     analysisInput: {
+      //         conversations: [{
+      //             conversationItems: entries,
+      //             language: language,
+      //             modality: "text",
+      //             id: "conversation1"
+      //         }],
 
-const lang = req.query.lang;
-const documents = [req.body];
-  console.log("== Extractive Summarization Sample ==");
+      //     },
+      //     tasks: [
+      //         {
+      //             taskName: "Conversation Task 1",
+      //             kind: "ConversationalSummarizationTask",
+      //             parameters: {
+      //                 summaryAspects: [
+      //                     "recap",
+      //                     "follow-up tasks"
+      //                 ]
+      //             }
+      //         }
+      //     ]
+      // };
+      // let data = JSON.stringify(conversation);
+      const data = req.body;
+      const headers = {
+          headers: {
+              'Ocp-Apim-Subscription-Key': apiKey,
+              'Content-type': 'application/json',
+              'X-ClientTraceId': uuidv4().toString()
+          }
+      };
 
-  const client = new TextAnalysisClient(endpoint, new AzureKeyCredential(apiKey));
-  const actions = [
-    {
-      kind: "ExtractiveSummarization",
-      maxSentenceCount: 2,
-    },
-  ];
-  const poller = await client.beginAnalyzeBatch(actions, documents, lang);
+      let res = await axios.post(`https://${endpoint}language/analyze-conversations/jobs?api-version=2023-11-15-preview`, data, headers);
+      const jobId = res.headers['operation-location'];
 
-  poller.onProgress(() => {
-    console.log(
-      `Last time the operation was updated was on: ${poller.getOperationState().modifiedOn}`
-    );
-  });
-  console.log(`The operation was created on ${poller.getOperationState().createdOn}`);
-  console.log(`The operation results will expire on ${poller.getOperationState().expiresOn}`);
-
-  const results = await poller.pollUntilDone();
-
-  for await (const actionResult of results) {
-    if (actionResult.kind !== "ExtractiveSummarization") {
-      throw new Error(`Expected extractive summarization results but got: ${actionResult.kind}`);
-    }
-    if (actionResult.error) {
-      const { code, message } = actionResult.error;
-      throw new Error(`Unexpected error (${code}): ${message}`);
-    }
-    for (const result of actionResult.results) {
-      console.log(`- Document ${result.id}`);
-      if (result.error) {
-        const { code, message } = result.error;
-        throw new Error(`Unexpected error (${code}): ${message}`);
-      }
-      console.log("Summary:");
-      console.log(result.sentences.map((sentence) => sentence.text).join("\n"));
-    }
+      res = await axios.get(`https://${endpoint}language/analyze-conversations/jobs/${jobId}?api-version=2023-11-15-preview`, headers);
+      return res.data.tasks;
+  } catch (err) {
+      console.log(err.message);
+      return `Error summarizing text. ${err.message}`;
   }
-    res.send({ results: results });
 
 });
 
