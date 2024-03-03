@@ -199,12 +199,8 @@ export default function getLPTheme(mode) {
               backgroundColor: 'transparent',
             },
             '&:first-of-type': {
-              borderTopLeftRadius: 10,
-              borderTopRightRadius: 10,
             },
             '&:last-of-type': {
-              borderBottomLeftRadius: 10,
-              borderBottomRightRadius: 10,
             },
             ...(theme.palette.mode === 'dark' && {
               backgroundColor: gray[900],
@@ -217,7 +213,6 @@ export default function getLPTheme(mode) {
         styleOverrides: {
           root: ({ theme }) => ({
             border: 'none',
-            borderRadius: 8,
             '&:hover': { backgroundColor: gray[100] },
             ...(theme.palette.mode === 'dark' && {
               '&:hover': { backgroundColor: gray[800] },
@@ -233,7 +228,6 @@ export default function getLPTheme(mode) {
       MuiToggleButtonGroup: {
         styleOverrides: {
           root: ({ theme }) => ({
-            borderRadius: '10px',
             boxShadow: `0 4px 16px ${alpha(gray[400], 0.2)}`,
             '& .Mui-selected': {
               color: brand[500],
@@ -252,7 +246,6 @@ export default function getLPTheme(mode) {
           root: ({ theme }) => ({
             padding: '12px 16px',
             textTransform: 'none',
-            borderRadius: '10px',
             fontWeight: 500,
             ...(theme.palette.mode === 'dark' && {
               color: gray[400],
@@ -283,7 +276,6 @@ export default function getLPTheme(mode) {
           root: ({ theme, ownerState }) => ({
             boxSizing: 'border-box',
             boxShadow: 'none',
-            borderRadius: '10px',
             textTransform: 'none',
             '&:active': {
               transform: 'scale(0.98)',
@@ -348,7 +340,6 @@ export default function getLPTheme(mode) {
         styleOverrides: {
           root: ({ theme, ownerState }) => ({
             backgroundColor: gray[50],
-            borderRadius: 10,
             border: `1px solid ${alpha(gray[200], 0.8)}`,
             boxShadow: 'none',
             transition: 'background-color, border, 80ms ease',
@@ -463,7 +454,6 @@ export default function getLPTheme(mode) {
       MuiMenuItem: {
         styleOverrides: {
           root: ({ theme }) => ({
-            borderRadius: '99px',
             color: gray[500],
             fontWeight: 500,
             ...(theme.palette.mode === 'dark' && {
@@ -502,7 +492,6 @@ export default function getLPTheme(mode) {
               },
             },
             '& .MuiSwitch-track': {
-              borderRadius: 50,
             },
             '& .MuiSwitch-thumb': {
               boxShadow: '0 0 2px 2px rgba(0, 0, 0, 0.2)',
@@ -560,10 +549,9 @@ export default function getLPTheme(mode) {
             },
             '& .MuiOutlinedInput-root': {
               boxSizing: 'border-box',
-              minWidth: 280,
+              minWidth: 80,
               minHeight: 40,
               height: '100%',
-              borderRadius: '10px',
               border: '1px solid',
               borderColor: gray[200],
               transition: 'border-color 120ms ease-in',
@@ -584,10 +572,9 @@ export default function getLPTheme(mode) {
             ...(theme.palette.mode === 'dark' && {
               '& .MuiOutlinedInput-root': {
                 boxSizing: 'border-box',
-                minWidth: 280,
+                minWidth: 80,
                 minHeight: 40,
                 height: '100%',
-                borderRadius: '10px',
                 border: '1px solid',
                 borderColor: gray[600],
                 transition: 'border-color 120ms ease-in',

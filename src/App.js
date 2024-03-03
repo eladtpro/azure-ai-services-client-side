@@ -1,30 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
-import { Grid, IconButton, Stack, CssBaseline, Box, Paper, TextField, Typography, LinearProgress, Button } from '@mui/material';
-import { Mic, MicNone, Send, Summarize } from '@mui/icons-material';
+import { Grid, Stack, CssBaseline, Box, Paper, TextField, Typography, LinearProgress, Button } from '@mui/material';
+import { Mic, Summarize } from '@mui/icons-material';
 import { getTokenOrRefresh, translate, summarize } from './utils';
-import { Language, Name } from './components';
+import { Language, Name, Summarization } from './components';
 import getLPTheme from './getLPTheme';
+// import image from '/VisionSpeechLanguageDecisionWebSearch_Diagram-02.png'
 
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
 
 let recognizer = null;
 
+const styles = {
+    paperContainer: {
+        textAlign: 'right',
+        paddingRight: '20px',
+    }
+};
+
 const Item = styled(Paper)(({ theme }) => ({
     // backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
     ...theme.typography.body2,
     padding: theme.spacing(1),
-    textAlign: 'center',
+    textAlign: 'left',
     color: theme.palette.text.secondary,
 }));
 
 export default function App() {
-    const [mode, setMode] = React.useState('dark');
-    const LPtheme = createTheme(getLPTheme(mode));
+    const LPtheme = createTheme(getLPTheme('dark'));
     const [entries, setEntries] = useState([]);
     const [conversation, setConversation] = useState('');
     const [translation, setTranslation] = useState('');
-    const [summarization, setSummarization] = useState('');
+    const [summarization, setSummarization] = useState(undefined);
     const [recognizedText, setRecognizedText] = useState('');
     const [recognizingText, setRecognizingText] = useState('');
     const [language, setLanguage] = useState('he-IL');
@@ -81,8 +88,8 @@ export default function App() {
     function handleClick() {
         setSummarizing(true);
         summarize(entries, language)
-            .then((summary) => {
-                setSummarization(summary);
+            .then((result) => {
+                setSummarization(result);
             })
             .finally(() => setSummarizing(false));
     }
@@ -134,86 +141,92 @@ export default function App() {
         <ThemeProvider theme={LPtheme}>
             <CssBaseline />
             <Box sx={{ bgcolor: 'background.default' }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <Typography variant="h3" component="div" gutterBottom>
+                <Grid container spacing={4}>
+                    <Grid item xs={12}>&nbsp;</Grid>
+                    <Grid item xs={4}>
+                        <Typography variant="h3" component="div" gutterBottom paddingLeft={4}>
                             Speech & Translate
                         </Typography>
                     </Grid>
+                    <Grid item xs={8}>
+                        <Paper style={styles.paperContainer}>
+                            <img src="/VisionSpeechLanguageDecisionWebSearch_Diagram-02.png" height={100} alt="Speech & Translate" />
+                        </Paper>
+                    </Grid>                
                     <Grid item xs={12}>
-                        <Stack spacing={2} direction="row">
-                            <Item>
-                                <Name value={name} lalbel="Name" onChange={setName} />
-                            </Item>
-                            <Item>
-                                <Language
-                                    lalbel="Spoken language"
-                                    value={language}
-                                    onChange={setLanguage}
-                                />
-                            </Item>
-                            <Item>
-                                <Language
-                                    lalbel="Translated language"
-                                    value={translateLanguage}
-                                    onChange={setTranslateLanguage}
-                                />
-                            </Item>
-                            <Item>
-                                {name ?
-                                    <IconButton aria-label="sttMic" onClick={sttFromMic}>
-                                        <Mic />
-                                    </IconButton> : <MicNone />
-                                }
-                            </Item>
-                            <Button variant="contained" endIcon={<Summarize />} onClick={handleClick}>
-                            Summarize
-                            </Button>
-
-                        </Stack>
-                    </Grid>
-                    <Grid item xs={12}>
-                        {recognizing ? <LinearProgress /> : ''}
-                        <TextField
-                            id="outlined-multiline-static"
-                            label="Listening..."
-                            multiline
-                            rows={2}
-                            value={recognizingText}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            id="outlined-multiline-static"
-                            label="Conversation"
-                            multiline
-                            rows={20}
-                            value={conversation}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        {translating ? <LinearProgress /> : ''}
-                        <TextField
-                            id="outlined-multiline-static"
-                            label="Translation"
-                            multiline
-                            rows={20}
-                            value={translation}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        {summarizing ? <LinearProgress /> : ''}
-                        <TextField
-                            id="outlined-multiline-static"
-                            label="Summarization"
-                            multiline
-                            rows={2}
-                            value={summarization}
-                            fullWidth
-                        />
+                        <Grid container spacing={2}>
+                            <Grid item xs={2}>
+                                <Stack spacing={4} direction="column" maxWidth={200}>
+                                    <Item>
+                                        <Name value={name} lalbel="Name" onChange={setName} fullWidth />
+                                    </Item>
+                                    <Item>
+                                        <Language
+                                            lalbel="Spoken language"
+                                            value={language}
+                                            onChange={setLanguage}
+                                        />
+                                    </Item>
+                                    <Item>
+                                        <Language
+                                            lalbel="Translated language"
+                                            value={translateLanguage}
+                                            onChange={setTranslateLanguage}
+                                        />
+                                    </Item>
+                                    <Item>
+                                        <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={sttFromMic} disabled={!name} >
+                                            Listen
+                                        </Button>
+                                    </Item>
+                                    <Item>
+                                        <Button variant="outlined" size="medium" fullWidth endIcon={<Summarize />} onClick={handleClick} disabled={!translation} >
+                                            Summarize
+                                        </Button>
+                                    </Item>
+                                </Stack>
+                            </Grid>
+                            <Grid item xs={10}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={6}>
+                                        <TextField
+                                            id="outlined-multiline-static"
+                                            label="Conversation"
+                                            multiline
+                                            rows={20}
+                                            value={conversation}
+                                            fullWidth
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        {translating ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />}
+                                        <TextField
+                                            id="outlined-multiline-static"
+                                            label="Translation"
+                                            multiline
+                                            rows={20}
+                                            value={translation}
+                                            fullWidth
+                                        />
+                                    </Grid>
+                                    <Grid item xs={5}>
+                                        {recognizing ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />}
+                                        <TextField
+                                            id="outlined-multiline-static"
+                                            label="Listening..."
+                                            multiline
+                                            rows={2}
+                                            value={recognizingText}
+                                            fullWidth
+                                        />
+                                    </Grid>
+                                    <Grid item xs={7}>
+                                        {summarization && (summarizing ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
+                                        {summarization && <Summarization result={summarization} />}
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Box>

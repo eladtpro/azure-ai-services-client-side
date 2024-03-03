@@ -7,7 +7,7 @@ export default function Language({ lalbel, value, onChange, helper }) {
     };
 
     return (
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
+        <FormControl sx={{ m: 1, minWidth: 120 }} fullWidth>
             <InputLabel id="demo-simple-select-label">{lalbel}</InputLabel>
             <Select
                 labelId="demo-simple-select-label"

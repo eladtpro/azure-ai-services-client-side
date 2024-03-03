@@ -100,8 +100,8 @@ export async function summarize(entries, language) {
         }
 
         // res = await axios.get(`${config.languageEndpoint}language/analyze-conversations/jobs/${jobId}?api-version=2023-11-15-preview`, headers);
-        const sumRes = JSON.stringify(res.data.tasks.items[0].results.conversations[0].summaries);
-        return sumRes;
+        // const sumRes = JSON.stringify(res.data.tasks.items[0].results.conversations[0].summaries);
+        return res.data;
     } catch (err) {
         console.log(err.message);
         return `Error summarizing text. ${err.message}`;

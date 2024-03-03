@@ -9,13 +9,9 @@ export default function Name({ lalbel, value, onChange }) {
   return (
 
     <TextField
+      fullWidth
       label={lalbel}
-      id="outlined-start-adornment"
-      size='large'
-      //   sx={{ m: 1, width: '25ch' }}
-      //   InputProps={{
-      //     startAdornment: <InputAdornment position="start">Name:</InputAdornment>,
-      //   }}
+      style={{ minWidth: 80 }}
       value={value}
       onChange={handleChange}
     />
