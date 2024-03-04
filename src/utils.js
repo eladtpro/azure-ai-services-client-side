@@ -2,6 +2,16 @@ import axios from 'axios';
 import Cookie from 'universal-cookie';
 const { v4: uuidv4 } = require('uuid');
 
+let config = undefined;
+
+async function getConfig() {
+    if (config == undefined) {
+        const response = await axios.get('/api/config');
+        config = response.data;
+    }
+    return config;
+}
+
 export async function getTokenOrRefresh() {
     const cookie = new Cookie();
     const speechToken = cookie.get('speech-token');
@@ -28,8 +38,7 @@ export async function getTokenOrRefresh() {
 
 export async function translate(text, from, to) {
     try {
-        const response = await axios.get('/api/config');
-        const config = response.data;
+        await getConfig();
         const data = [{ text }];
         const headers = {
             headers: {
@@ -52,8 +61,7 @@ export async function translate(text, from, to) {
 export async function summarize(entries, language) {
     // https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/how-to/conversation-summarization
     try {
-        const response = await axios.get('/api/config');
-        const config = response.data;
+        await getConfig();
         const conversation = {
             displayName: 'Conversation Summarization',
             analysisInput: {

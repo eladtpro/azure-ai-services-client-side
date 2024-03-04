@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import { Grid, Stack, CssBaseline, Box, Paper, TextField, Typography, LinearProgress, Button } from '@mui/material';
-import { Mic, Summarize } from '@mui/icons-material';
-import { getTokenOrRefresh, translate, summarize } from './utils';
+import { Mic, MicNone, Summarize } from '@mui/icons-material';
+import { translate, summarize } from './utils';
 import { Language, Name, Summarization } from './components';
 import getLPTheme from './getLPTheme';
-// import image from '/VisionSpeechLanguageDecisionWebSearch_Diagram-02.png'
-
-const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
-
-let recognizer = null;
+import { startSttFromMic, stopSttFromMic, isActive, } from './stt';
 
 const styles = {
     paperContainer: {
@@ -81,10 +77,6 @@ export default function App() {
         setRecognizing(true);
     }, [recognizingText]);
 
-    function logText(newText) {
-        console.log(newText);
-    }
-
     function handleClick() {
         setSummarizing(true);
         summarize(entries, language)
@@ -92,49 +84,6 @@ export default function App() {
                 setSummarization(result);
             })
             .finally(() => setSummarizing(false));
-    }
-
-    async function sttFromMic() {
-        const tokenObj = await getTokenOrRefresh();
-        const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.authToken, tokenObj.region);
-        speechConfig.speechRecognitionLanguage = language;
-
-        const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
-        recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
-
-        recognizer.recognizing = (s, e) => {
-            setRecognizingText(e.result.text);
-        };
-
-        recognizer.recognized = (s, e) => {
-            if (e.result.reason === speechsdk.ResultReason.RecognizedSpeech) {
-                setRecognizedText(e.result.text);
-            }
-            else if (e.result.reason === speechsdk.ResultReason.NoMatch) {
-                logText("NOMATCH: Speech could not be recognized.");
-            }
-        };
-
-        recognizer.canceled = (s, e) => {
-            logText(`CANCELED: Reason=${e.reason}`);
-
-            if (e.reason === speechsdk.CancellationReason.Error) {
-                logText(`"CANCELED: ErrorCode=${e.errorCode}`);
-                logText(`"CANCELED: ErrorDetails=${e.errorDetails}`);
-                logText("CANCELED: Did you set the speech resource key and region values?");
-            }
-
-            recognizer.stopContinuousRecognitionAsync();
-        };
-
-        recognizer.sessionStopped = (s, e) => {
-            logText("\n    Session stopped event.");
-            recognizer.stopContinuousRecognitionAsync();
-        };
-
-        logText('speak into your microphone...');
-
-        recognizer.startContinuousRecognitionAsync();
     }
 
     return (
@@ -152,7 +101,7 @@ export default function App() {
                         <Paper style={styles.paperContainer}>
                             <img src="/VisionSpeechLanguageDecisionWebSearch_Diagram-02.png" height={100} alt="Speech & Translate" />
                         </Paper>
-                    </Grid>                
+                    </Grid>
                     <Grid item xs={12}>
                         <Grid container spacing={2}>
                             <Grid item xs={2}>
@@ -175,9 +124,14 @@ export default function App() {
                                         />
                                     </Item>
                                     <Item>
-                                        <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={sttFromMic} disabled={!name} >
-                                            Listen
-                                        </Button>
+                                        {isActive() ?
+                                            <Button variant="outlined" size="medium" fullWidth endIcon={<MicNone />} onClick={stopSttFromMic} disabled={!name} >
+                                                Stop
+                                            </Button>
+                                            : <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={() => startSttFromMic(language, setRecognizingText, setRecognizedText)} disabled={!name} >
+                                                Listen
+                                            </Button>
+                                        }
                                     </Item>
                                     <Item>
                                         <Button variant="outlined" size="medium" fullWidth endIcon={<Summarize />} onClick={handleClick} disabled={!translation} >
