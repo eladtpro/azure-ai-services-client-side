@@ -6,7 +6,9 @@ let registered = false;
 export function registerSocket(onMessage, onSync) {
     if (registered) return false;
     
-    socket = io.connect('http://localhost:3005');
+    // socket = io.connect('http://localhost:3005');
+    socket = io();
+    socket = io('http://localhost:3005');
     socket.on('connected', function(data) {
         console.log(`connected: ${data}`);
     });

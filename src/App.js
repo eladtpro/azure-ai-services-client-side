@@ -38,7 +38,7 @@ export default function App() {
     const [recognizing, setRecognizing] = useState(false);
     const [translating, setTranslating] = useState(false);
     const [summarizing, setSummarizing] = useState(false);
-    const [name, setName] = useState('');
+    const [name, setName] = useState('Elad');
 
     function onMessage(entry) {
         const copy = [...entries, entry];

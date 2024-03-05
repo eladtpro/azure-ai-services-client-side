@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookie from 'universal-cookie';
 const { v4: uuidv4 } = require('uuid');
-
+axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:3001";
 let configCache = undefined;
 
 export function buildMessage(name, text, language, role = 'Agent') {

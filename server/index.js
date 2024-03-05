@@ -1,4 +1,5 @@
 require('dotenv').config();
+const cors = require("cors");
 // var io = require('socket.io');
 const express = require('express');
 // const axios = require('axios');
@@ -6,6 +7,12 @@ const pino = require('express-pino-logger')();
 const app = express();
 // const server = require('http').createServer(app);
 
+app.use(
+    cors({
+      origin: ["http://localhost:3000", "http://localhost:3005"],
+      credentials: true
+    })
+  );
 
 const entries = [];
 

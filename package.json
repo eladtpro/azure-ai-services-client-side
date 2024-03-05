@@ -65,6 +65,5 @@
   },
   "overrides": {
     "css-select": "^5.1.0"
-  },
-  "proxy": "http://localhost:3001"
+  }
 }
