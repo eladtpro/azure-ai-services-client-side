@@ -2,33 +2,39 @@ import axios from 'axios';
 import Cookie from 'universal-cookie';
 const { v4: uuidv4 } = require('uuid');
 
-let config = undefined;
+let configCache = undefined;
 
-async function getConfig() {
-    if (config == undefined) {
-        const response = await axios.get('/api/config');
-        config = response.data;
-    }
-    return config;
+export function buildMessage(name, text, language, role = 'Agent') {
+    const date = new Date();
+    return { id: toFiletime(date), timestamp: date.toLocaleTimeString(language), name, text, role, language, participantId: name.replace(' ', '_') };
 }
 
-export async function getTokenOrRefresh() {
+function toFiletime(date) {
+    return date.getTime() * 1e4 + 116444736e9;
+}
+
+async function getConfig() {
+    if (configCache == undefined) {
+        const response = await axios.get('/api/config');
+        configCache = response.data;
+    }
+    return configCache;
+}
+
+export async function getSpeechToken() {
     const cookie = new Cookie();
     const speechToken = cookie.get('speech-token');
 
     if (speechToken === undefined) {
-        try {
-            const res = await axios.get('/api/get-speech-token');
-            const token = res.data.token;
-            const region = res.data.region;
-            cookie.set('speech-token', region + ':' + token, { maxAge: 540, path: '/' });
-
-            console.log('Token fetched from back-end: ' + token);
-            return { authToken: token, region: region };
-        } catch (err) {
-            console.log(err.response.data);
-            return { authToken: null, error: err.response.data };
-        }
+        const config = await getConfig();
+        const headers = {
+            headers: {
+                'Ocp-Apim-Subscription-Key': configCache.speechKey,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        };
+        const response = await axios.post(`https://${config.speechRegion}.api.cognitive.microsoft.com/sts/v1.0/issueToken`, null, headers);
+        return { token: response.data, region: config.speechRegion };
     } else {
         console.log('Token fetched from cookie: ' + speechToken);
         const idx = speechToken.indexOf(':');
@@ -38,7 +44,7 @@ export async function getTokenOrRefresh() {
 
 export async function translate(text, from, to) {
     try {
-        await getConfig();
+        const config = await getConfig();
         const data = [{ text }];
         const headers = {
             headers: {
@@ -61,7 +67,7 @@ export async function translate(text, from, to) {
 export async function summarize(entries, language) {
     // https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/how-to/conversation-summarization
     try {
-        await getConfig();
+        const config = await getConfig();
         const conversation = {
             displayName: 'Conversation Summarization',
             analysisInput: {
@@ -107,8 +113,6 @@ export async function summarize(entries, language) {
             completed = res.data.tasks.completed > 0;
         }
 
-        // res = await axios.get(`${config.languageEndpoint}language/analyze-conversations/jobs/${jobId}?api-version=2023-11-15-preview`, headers);
-        // const sumRes = JSON.stringify(res.data.tasks.items[0].results.conversations[0].summaries);
         return res.data;
     } catch (err) {
         console.log(err.message);

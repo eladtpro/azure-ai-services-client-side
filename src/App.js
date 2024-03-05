@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import { Grid, Stack, CssBaseline, Box, Paper, TextField, Typography, LinearProgress, Button } from '@mui/material';
 import { Mic, MicNone, Summarize } from '@mui/icons-material';
-import { translate, summarize } from './utils';
+import { translate, summarize, buildMessage } from './utils';
 import { Language, Name, Summarization } from './components';
 import getLPTheme from './getLPTheme';
 import { startSttFromMic, stopSttFromMic, isActive, } from './stt';
+
+import { registerSocket, sendMessage } from './socket';
+
 
 const styles = {
     paperContainer: {
@@ -37,6 +40,20 @@ export default function App() {
     const [summarizing, setSummarizing] = useState(false);
     const [name, setName] = useState('');
 
+    function onMessage(entry) {
+        const copy = [...entries, entry];
+        entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+        setEntries(copy);
+    }
+
+    function onSync(entries) {
+        setEntries(entries);
+    }
+
+    useEffect(() => {
+        // registerSocket(onMessage, onSync);
+    }, []);
+
     useEffect(() => {
         let conv = '', trans = '';
         for (const entry of entries) {
@@ -66,7 +83,7 @@ export default function App() {
 
     useEffect(() => {
         if (!recognizedText) return;
-        const entry = { id: entries.length, timestamp: new Date().toLocaleTimeString(language), name, text: recognizedText, role: 'Agent', participantId: name.replace(' ', '_') };
+        const entry = buildMessage(name, recognizedText, language);
         setEntries([...entries, entry])
         setRecognizingText('');
         setRecognizing(false);
@@ -91,7 +108,6 @@ export default function App() {
             <CssBaseline />
             <Box sx={{ bgcolor: 'background.default' }}>
                 <Grid container spacing={4}>
-                    <Grid item xs={12}>&nbsp;</Grid>
                     <Grid item xs={4}>
                         <Typography variant="h3" component="div" gutterBottom paddingLeft={4}>
                             Speech & Translate

@@ -1,4 +1,4 @@
-import { getTokenOrRefresh } from './utils';
+import { getSpeechToken } from './utils';
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
 
 let recognizer = undefined;
@@ -12,8 +12,8 @@ export function isActive() {
 }
 
 export async function startSttFromMic(language, setRecognizingText, setRecognizedText) {
-    const tokenObj = await getTokenOrRefresh();
-    const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.authToken, tokenObj.region);
+    const tokenObj = await getSpeechToken();
+    const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.token, tokenObj.region);
     speechConfig.speechRecognitionLanguage = language;
 
     const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
