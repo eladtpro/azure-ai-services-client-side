@@ -1,12 +1,25 @@
 import axios from 'axios';
 import Cookie from 'universal-cookie';
 const { v4: uuidv4 } = require('uuid');
-axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:3001";
+axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
 let configCache = undefined;
+
+export const Status = {
+    IDLE: 0,
+    INITIALIZING: 1,
+    LISTENING: 2,
+    RECOGNIZING: 4,
+    TRANSLATING: 8,
+    SUMMARIZING: 16,
+    STOPPING: 32,
+    NOMATCH: 64,
+    ACTIVE: 1 | 2 | 4 | 8 | 16 | 64,
+    INACTIVE: 0 | 32
+};
 
 export function buildMessage(name, text, language, role = 'Agent') {
     const date = new Date();
-    return { id: toFiletime(date), timestamp: date.toLocaleTimeString(language), name, text, role, language, participantId: name.replace(' ', '_') };
+    return { id: toFiletime(date), timestamp: language ? date.toLocaleTimeString(language): date.toTimeString(), name, text, role, language, participantId: name.replace(' ', '_') };
 }
 
 function toFiletime(date) {

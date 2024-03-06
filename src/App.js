@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import { Grid, Stack, CssBaseline, Box, Paper, TextField, Typography, LinearProgress, Button } from '@mui/material';
 import { Mic, MicNone, Summarize } from '@mui/icons-material';
-import { translate, summarize, buildMessage } from './utils';
+import { translate, summarize, buildMessage, Status } from './utils';
 import { Language, Name, Summarization } from './components';
 import getLPTheme from './getLPTheme';
-import { startSttFromMic, stopSttFromMic, isActive, } from './stt';
+import { startSttFromMic, stopSttFromMic } from './stt';
 
 import { registerSocket, sendMessage } from './socket';
-
 
 const styles = {
     paperContainer: {
@@ -28,6 +27,7 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function App() {
     const LPtheme = createTheme(getLPTheme('dark'));
     const [entries, setEntries] = useState([]);
+    const [status, setStatus] = useState(Status.IDLE);
     const [conversation, setConversation] = useState('');
     const [translation, setTranslation] = useState('');
     const [summarization, setSummarization] = useState(undefined);
@@ -35,23 +35,23 @@ export default function App() {
     const [recognizingText, setRecognizingText] = useState('');
     const [language, setLanguage] = useState('he-IL');
     const [translateLanguage, setTranslateLanguage] = useState('en-US');
-    const [recognizing, setRecognizing] = useState(false);
-    const [translating, setTranslating] = useState(false);
-    const [summarizing, setSummarizing] = useState(false);
     const [name, setName] = useState('Elad');
 
     function onMessage(entry) {
+        if (entry.name === name) return;
+        console.log(entry);
         const copy = [...entries, entry];
         entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
         setEntries(copy);
     }
 
     function onSync(entries) {
+        console.log(entries);
         setEntries(entries);
     }
 
     useEffect(() => {
-        // registerSocket(onMessage, onSync);
+        registerSocket(onMessage, onSync);
     }, []);
 
     useEffect(() => {
@@ -71,14 +71,15 @@ export default function App() {
         const lastIndex = entries.length - 1;
         const lastEntry = entries[lastIndex];
         if (lastEntry.translation) return;
-        setTranslating(true);
+        setStatus(status | Status.TRANSLATING);
         translate(lastEntry.text, language, translateLanguage)
             .then((trans) => {
                 const copy = [...entries];
                 copy[lastIndex].translation = trans;
+                sendMessage(copy[lastIndex]);
                 setEntries(copy);
             })
-            .finally(() => setTranslating(false));
+            .finally(() => setStatus(status & ~Status.TRANSLATING));
     }, [entries]);
 
     useEffect(() => {
@@ -86,21 +87,33 @@ export default function App() {
         const entry = buildMessage(name, recognizedText, language);
         setEntries([...entries, entry])
         setRecognizingText('');
-        setRecognizing(false);
+        setStatus(status | Status.LISTENING);
     }, [recognizedText]);
 
     useEffect(() => {
         if (!recognizingText) return;
-        setRecognizing(true);
+        setStatus(status | Status.RECOGNIZING);
     }, [recognizingText]);
 
-    function handleClick() {
-        setSummarizing(true);
+    function handleSummarizeClick() {
+        setStatus(status | Status.SUMMARIZING);
         summarize(entries, language)
             .then((result) => {
                 setSummarization(result);
             })
-            .finally(() => setSummarizing(false));
+            .finally(() => setStatus(status & ~Status.SUMMARIZING));
+    }
+
+    async function handleStartSttClick() {
+        setStatus(Status.INITIALIZING);
+        await startSttFromMic(language, setRecognizingText, setRecognizedText, status, setStatus);
+        setStatus(Status.LISTENING);
+    }
+
+    async function handleStopSttClick() {
+        setStatus(Status.STOPPING);
+        await stopSttFromMic(stopSttFromMic);
+        setStatus(Status.IDLE);
     }
 
     return (
@@ -110,7 +123,7 @@ export default function App() {
                 <Grid container spacing={4}>
                     <Grid item xs={4}>
                         <Typography variant="h3" component="div" gutterBottom paddingLeft={4}>
-                            Speech & Translate
+                            Azure AI Services
                         </Typography>
                     </Grid>
                     <Grid item xs={8}>
@@ -140,17 +153,17 @@ export default function App() {
                                         />
                                     </Item>
                                     <Item>
-                                        {isActive() ?
-                                            <Button variant="outlined" size="medium" fullWidth endIcon={<MicNone />} onClick={stopSttFromMic} disabled={!name} >
+                                        {status & Status.ACTIVE ?
+                                            <Button variant="outlined" size="medium" fullWidth endIcon={<MicNone />} onClick={async () => await handleStopSttClick()} disabled={!name && status & Status.ACTIVE} >
                                                 Stop
                                             </Button>
-                                            : <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={() => startSttFromMic(language, setRecognizingText, setRecognizedText)} disabled={!name} >
+                                            : <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={async () => await handleStartSttClick()} disabled={!name && status & Status.INACTIVE} >
                                                 Listen
                                             </Button>
                                         }
                                     </Item>
                                     <Item>
-                                        <Button variant="outlined" size="medium" fullWidth endIcon={<Summarize />} onClick={handleClick} disabled={!translation} >
+                                        <Button variant="outlined" size="medium" fullWidth endIcon={<Summarize />} onClick={handleSummarizeClick} disabled={!translation} >
                                             Summarize
                                         </Button>
                                     </Item>
@@ -169,7 +182,7 @@ export default function App() {
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        {translating ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />}
+                                        {status === Status.TRANSLATING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />}
                                         <TextField
                                             id="outlined-multiline-static"
                                             label="Translation"
@@ -180,18 +193,20 @@ export default function App() {
                                         />
                                     </Grid>
                                     <Grid item xs={5}>
-                                        {recognizing ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />}
-                                        <TextField
+                                        {status & Status.ACTIVE && (status & Status.RECOGNIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
+                                        {(status & Status.ACTIVE || status === Status.TRANSLATING) && <TextField
                                             id="outlined-multiline-static"
                                             label="Listening..."
                                             multiline
                                             rows={2}
                                             value={recognizingText}
                                             fullWidth
-                                        />
+                                            error={!!(status & Status.NOMATCH)}
+                                            helperText={status & Status.NOMATCH ? 'No natch, try again' : ''}
+                                        />}
                                     </Grid>
                                     <Grid item xs={7}>
-                                        {summarization && (summarizing ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
+                                        {summarization && (status & Status.SUMMARIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
                                         {summarization && <Summarization result={summarization} />}
                                     </Grid>
                                 </Grid>

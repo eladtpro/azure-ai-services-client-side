@@ -1,4 +1,4 @@
-import { getSpeechToken } from './utils';
+import { getSpeechToken, Status } from './utils';
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
 
 let recognizer = undefined;
@@ -7,14 +7,11 @@ function logText(newText) {
     console.log(newText);
 }
 
-export function isActive() {
-    return recognizer !== undefined;
-}
-
-export async function startSttFromMic(language, setRecognizingText, setRecognizedText) {
+export async function startSttFromMic(language, setRecognizingText, setRecognizedText, status, setStatus) {
     const tokenObj = await getSpeechToken();
     const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.token, tokenObj.region);
-    speechConfig.speechRecognitionLanguage = language;
+    if (language)
+        speechConfig.speechRecognitionLanguage = language;
 
     const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
     recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
@@ -25,9 +22,12 @@ export async function startSttFromMic(language, setRecognizingText, setRecognize
 
     recognizer.recognized = (s, e) => {
         if (e.result.reason === speechsdk.ResultReason.RecognizedSpeech) {
+            setStatus(status & ~Status.NOMATCH)
             setRecognizedText(e.result.text);
         }
         else if (e.result.reason === speechsdk.ResultReason.NoMatch) {
+            setStatus(status | Status.NOMATCH);
+
             logText("NOMATCH: Speech could not be recognized.");
         }
     };
