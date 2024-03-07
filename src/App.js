@@ -3,12 +3,10 @@ import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import { Grid, Stack, CssBaseline, Box, Paper, TextField, Typography, LinearProgress, Button } from '@mui/material';
 import { Mic, MicNone, Summarize } from '@mui/icons-material';
 import { translate, summarize, buildMessage, Status, getConfig } from './utils';
-import { Language, Name, Summarization } from './components';
+import { Language, Name, Summarization, Chat } from './components';
 import getLPTheme from './getLPTheme';
 import { startSttFromMic, stopSttFromMic } from './stt';
 import { registerSocket, sendMessage } from './socket';
-
-let tempArray = [];
 
 const styles = {
     paperContainer: {
@@ -29,8 +27,8 @@ export default function App() {
     const LPtheme = createTheme(getLPTheme('dark'));
     const [entries, setEntries] = useState([]);
     const [status, setStatus] = useState(Status.IDLE);
-    const [conversation, setConversation] = useState('');
-    const [translation, setTranslation] = useState('');
+    // const [conversation, setConversation] = useState('');
+    // const [translation, setTranslation] = useState('');
     const [summarization, setSummarization] = useState(undefined);
     const [recognizedText, setRecognizedText] = useState('');
     const [recognizingText, setRecognizingText] = useState('');
@@ -43,12 +41,15 @@ export default function App() {
 
     useEffect(() => {
         if(!socketEntry) return;
+        if(!name) return;
+        if(!entries) return;
+        if(!setEntries) return;
         if (socketEntry.name === name) return;
         if (socketEntry.type !== 'message') return;
         const copy = [...entries, socketEntry];
-        entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+        copy.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
         setEntries(copy);
-    }, [socketEntry]);
+    }, [socketEntry, name, entries, setEntries]);
 
 
     useEffect(() => {
@@ -74,16 +75,16 @@ export default function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [config]);
 
-    useEffect(() => {
-        let conv = '', trans = '';
-        for (const entry of entries) {
-            conv += `[${entry.timestamp}] ${entry.name === name ? 'Me' : name}:    ${entry.text}.\n`;
-            trans += `[${entry.timestamp}] ${entry.name === name ? 'Me' : name}:    ${entry.translation || '...'}.\n`;
-        }
+    // useEffect(() => {
+    //     let conv = '', trans = '';
+    //     for (const entry of entries) {
+    //         conv += `[${entry.timestamp}] ${entry.name === name ? 'Me' : name}:    ${entry.text}.\n`;
+    //         trans += `[${entry.timestamp}] ${entry.name === name ? 'Me' : name}:    ${entry.translation || '...'}.\n`;
+    //     }
 
-        setConversation(conv);
-        setTranslation(trans);
-    }, [entries]);
+    //     setConversation(conv);
+    //     setTranslation(trans);
+    // }, [entries]);
 
     useEffect(() => {
         if (entries.length === 0) return;
@@ -94,7 +95,6 @@ export default function App() {
         translated.map(async (entry) => {
             entry.translation = await translate(entry.text, language, translateLanguage, status, setStatus)
             sendMessage({...entry, type: 'message'});
-            tempArray = entries;
             setEntries([...entries], entry);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -183,7 +183,7 @@ export default function App() {
                                         }
                                     </Item>
                                     <Item>
-                                        <Button variant="outlined" size="medium" fullWidth endIcon={<Summarize />} onClick={handleSummarizeClick} disabled={!translation} >
+                                        <Button variant="outlined" size="medium" fullWidth endIcon={<Summarize />} onClick={handleSummarizeClick} disabled={entries.length < 1} >
                                             Summarize
                                         </Button>
                                     </Item>
@@ -191,7 +191,10 @@ export default function App() {
                             </Grid>
                             <Grid item xs={10}>
                                 <Grid container spacing={2}>
-                                    <Grid item xs={6}>
+                                    <Grid item xs={12}>
+                                        <Chat entries={entries} name={name} />
+                                    </Grid>
+                                    {/* <Grid item xs={6}>
                                         <TextField
                                             id="outlined-multiline-static"
                                             label="Conversation"
@@ -211,7 +214,7 @@ export default function App() {
                                             value={translation}
                                             fullWidth
                                         />
-                                    </Grid>
+                                    </Grid> */}
                                     <Grid item xs={5}>
                                         {status & Status.ACTIVE && (status & Status.RECOGNIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
                                         {(status & Status.ACTIVE || status === Status.TRANSLATING) && <TextField

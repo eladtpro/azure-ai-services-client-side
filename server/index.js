@@ -33,7 +33,7 @@ app.get('/api/config', (req, res) => {
         languageRegion: process.env.LANGUAGE_REGION,
         languageEndpoint: process.env.LANGUAGE_ENDPOINT,
         socketPort: process.env.SOCKET_PORT,
-        port: process.env.PORT
+        port: process.env.SERVER_PORT
     });
 });
 
@@ -41,6 +41,6 @@ app.get('(/*)?', async (req, res, next) => {
     res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-app.listen(process.env.PORT, () =>
+app.listen(process.env.SERVER_PORT, () =>
     console.log('Express server is running on localhost:3001')
 );
