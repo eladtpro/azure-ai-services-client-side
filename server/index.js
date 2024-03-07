@@ -39,6 +39,6 @@ app.get('(/*)?', async (req, res, next) => {
     res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-app.listen(process.env.API_PORT, () =>
+app.listen(process.env.PORT, () =>
     console.log('Express server is running on localhost:3001')
 );
