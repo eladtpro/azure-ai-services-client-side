@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import { Grid, Stack, CssBaseline, Box, Paper, TextField, Typography, LinearProgress, Button } from '@mui/material';
 import { Mic, MicNone, Summarize } from '@mui/icons-material';
-import { translate, summarize, buildMessage, Status } from './utils';
+import { translate, summarize, buildMessage, Status, getConfig } from './utils';
 import { Language, Name, Summarization } from './components';
 import getLPTheme from './getLPTheme';
 import { startSttFromMic, stopSttFromMic } from './stt';
-
 import { registerSocket, sendMessage } from './socket';
+
+let tempArray = [];
 
 const styles = {
     paperContainer: {
@@ -36,29 +37,48 @@ export default function App() {
     const [language, setLanguage] = useState('he-IL');
     const [translateLanguage, setTranslateLanguage] = useState('en-US');
     const [name, setName] = useState('Elad');
+    const [config, setConfig] = useState(undefined);
+    const [socketEntry, setSocketEntry] = useState(undefined);
 
-    function onMessage(entry) {
-        if (entry.name === name) return;
-        console.log(entry);
-        const copy = [...entries, entry];
-        entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-        setEntries(copy);
-    }
-
-    function onSync(entries) {
-        console.log(entries);
-        setEntries(entries);
-    }
 
     useEffect(() => {
-        registerSocket(onMessage, onSync);
-    }, []);
+        if(!socketEntry) return;
+        if (socketEntry.name === name) return;
+        if (socketEntry.type !== 'message') return;
+        const copy = [...entries, socketEntry];
+        entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+        setEntries(copy);
+    }, [socketEntry]);
+
+
+    useEffect(() => {
+        const fetchConfig = async () => {
+            const conf = await getConfig();
+            setConfig(conf);
+        }
+
+        fetchConfig();
+    }, [setConfig]);
+
+    useEffect(() => {
+        if (!config) return;
+
+        const onMessage = (entry) => {
+            setSocketEntry(entry);
+        }
+        const onSync = (entries) => {
+            console.log(entries);
+            setEntries(entries);
+        }
+        registerSocket(config.socketPort, onMessage, onSync);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [config]);
 
     useEffect(() => {
         let conv = '', trans = '';
         for (const entry of entries) {
-            conv += `[${entry.timestamp}] ${entry.name}:    ${entry.text}.\n`;
-            trans += `[${entry.timestamp}] ${entry.name}:    ${entry.translation || '...'}.\n`;
+            conv += `[${entry.timestamp}] ${entry.name === name ? 'Me' : name}:    ${entry.text}.\n`;
+            trans += `[${entry.timestamp}] ${entry.name === name ? 'Me' : name}:    ${entry.translation || '...'}.\n`;
         }
 
         setConversation(conv);
@@ -66,20 +86,18 @@ export default function App() {
     }, [entries]);
 
     useEffect(() => {
-        // translate last entry
         if (entries.length === 0) return;
-        const lastIndex = entries.length - 1;
-        const lastEntry = entries[lastIndex];
-        if (lastEntry.translation) return;
-        setStatus(status | Status.TRANSLATING);
-        translate(lastEntry.text, language, translateLanguage)
-            .then((trans) => {
-                const copy = [...entries];
-                copy[lastIndex].translation = trans;
-                sendMessage(copy[lastIndex]);
-                setEntries(copy);
-            })
-            .finally(() => setStatus(status & ~Status.TRANSLATING));
+        if (entries.every(item => !!item.translation)) return;
+
+        const translated = entries.filter((entry) => !entry.translation);
+        if (translated.length === 0) return;
+        translated.map(async (entry) => {
+            entry.translation = await translate(entry.text, language, translateLanguage, status, setStatus)
+            sendMessage({...entry, type: 'message'});
+            tempArray = entries;
+            setEntries([...entries], entry);
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [entries]);
 
     useEffect(() => {
@@ -87,12 +105,14 @@ export default function App() {
         const entry = buildMessage(name, recognizedText, language);
         setEntries([...entries, entry])
         setRecognizingText('');
-        setStatus(status | Status.LISTENING);
+        setStatus((status | Status.LISTENING) & ~Status.RECOGNIZING);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [recognizedText]);
 
     useEffect(() => {
         if (!recognizingText) return;
         setStatus(status | Status.RECOGNIZING);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [recognizingText]);
 
     function handleSummarizeClick() {
@@ -123,7 +143,7 @@ export default function App() {
                 <Grid container spacing={4}>
                     <Grid item xs={4}>
                         <Typography variant="h3" component="div" gutterBottom paddingLeft={4}>
-                            Azure AI Services
+                            the Client-Side of Azure AI Services
                         </Typography>
                     </Grid>
                     <Grid item xs={8}>

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookie from 'universal-cookie';
 const { v4: uuidv4 } = require('uuid');
-axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
+axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL || window.location.origin;
 let configCache = undefined;
 
 export const Status = {
@@ -19,15 +19,16 @@ export const Status = {
 
 export function buildMessage(name, text, language, role = 'Agent') {
     const date = new Date();
-    return { id: toFiletime(date), timestamp: language ? date.toLocaleTimeString(language): date.toTimeString(), name, text, role, language, participantId: name.replace(' ', '_') };
+    const nameId = name.replace(' ', '_');
+    return { id: `${nameId}_${toFiletime(date)}`, timestamp: language ? date.toLocaleTimeString(language): date.toTimeString(), name, text, role, language, participantId: nameId, translation: undefined };
 }
 
 function toFiletime(date) {
     return date.getTime() * 1e4 + 116444736e9;
 }
 
-async function getConfig() {
-    if (configCache == undefined) {
+export async function getConfig() {
+    if (configCache === undefined) {
         const response = await axios.get('/api/config');
         configCache = response.data;
     }
@@ -55,8 +56,9 @@ export async function getSpeechToken() {
     }
 }
 
-export async function translate(text, from, to) {
+export async function translate(text, from, to, status, setStatus) {
     try {
+        setStatus(status | Status.TRANSLATING);
         const config = await getConfig();
         const data = [{ text }];
         const headers = {
@@ -75,9 +77,12 @@ export async function translate(text, from, to) {
         console.log(err.response.data);
         return 'Error translating text.';
     }
+    finally {
+        setStatus(status & ~Status.TRANSLATING);
+    }
 }
 
-export async function summarize(entries, language) {
+export async function summarize(entries, language, status, setStatus) {
     // https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/how-to/conversation-summarization
     try {
         const config = await getConfig();

@@ -31,7 +31,9 @@ app.get('/api/config', (req, res) => {
         speechRegion: process.env.SPEECH_REGION,
         languageKey: process.env.LANGUAGE_KEY,
         languageRegion: process.env.LANGUAGE_REGION,
-        languageEndpoint: process.env.LANGUAGE_ENDPOINT
+        languageEndpoint: process.env.LANGUAGE_ENDPOINT,
+        socketPort: process.env.SOCKET_PORT,
+        port: process.env.PORT
     });
 });
 

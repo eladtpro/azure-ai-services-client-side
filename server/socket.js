@@ -24,7 +24,7 @@ function addEntry(entry) {
 // Emit welcome message on connection
 io.on('connection', function (socket) {
     // Use socket to communicate with this particular client only, sending it it's own id
-    socket.emit('connected', { message: 'Welcome!', id: socket.id });
+    socket.emit('connected', { message: `Socket connected with id:  ${socket.id}`, ...socket });
 
     socket.on('message', addEntry);
     socket.on('sync', () =>
