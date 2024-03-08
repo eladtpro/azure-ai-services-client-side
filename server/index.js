@@ -42,5 +42,5 @@ app.get('(/*)?', async (req, res, next) => {
 });
 
 app.listen(process.env.SERVER_PORT, () =>
-    console.log('Express server is running on localhost:3001')
+    console.log(`Express server is running on ${process.env.WEBSITE_HOSTNAME}  port: ${process.env.SERVER_PORT}`)
 );
