@@ -16,9 +16,11 @@ COPY --chown=node:node --from=prod-build /app/public /app/
 COPY --chown=node:node --from=prod-build /app/server /app/
 COPY --chown=node:node --from=prod-build /app/hostingstart.js /app/
 
+WORKDIR /app
+
 ENV NODE_ENV production 
 EXPOSE 80 
 USER node 
 
-CMD [ "node", "./app/server/index.js" ]
+CMD [ "node", "./server/index.js" ]
 # ENTRYPOINT [ "node", "./server/index.js" ]
