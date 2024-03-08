@@ -17,10 +17,10 @@ RUN npm run build
 # COPY --chown=node:node --from=prod-build /app/hostingstart.js /app/hostingstart.js
 
 # WORKDIR /app
-# RUN ls -la
-# ENV NODE_ENV production 
-# EXPOSE 80 
-# USER node 
+RUN ls -la
+ENV NODE_ENV production 
+EXPOSE 80 
+USER node 
 
 CMD [ "node", "./server/index.js" ]
 # ENTRYPOINT [ "node", "./server/index.js" ]
