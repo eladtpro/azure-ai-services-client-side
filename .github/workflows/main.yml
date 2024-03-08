@@ -1,54 +1,26 @@
-on: [push]
-name: Build&Push aiservices Container App image to Azure Container Registry (ACR)
+# File: .github/workflows/workflow.yml
+
+on: push
 
 jobs:
-  buildImage:
-    permissions:
-        contents: read
-        id-token: write
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v3
-        - name: 'Login via Azure CLI'
-          uses: azure/login@v1
-          with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
-        - name: Build and push aiservices image to ACR (${{ vars.CONTAINER_REGISTRY }})
-          run: az acr build --image aiservices:latest --registry ${{ vars.CONTAINER_REGISTRY }} --resource-group ${{ vars.RESOURCE_GROUP }} --file ./Dockerfile .
+    # checkout the repo
+    - name: 'Checkout Github Action' 
+      uses: actions/checkout@master
 
-
-
-# # File: .github/workflows/workflow.yml
-# name: Node.js CI
-
-# on: [push]
-
-# env:
-#   AZURE_WEBAPP_NAME: app-congnitive   # set this to your application's name
-#   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
-#   NODE_VERSION: '20.x'                # set this to the node version to use
-
-# jobs:
-#   build-and-deploy:
-#     name: Build and Deploy
-#     runs-on: ubuntu-latest
-#     steps:
-#     - uses: actions/checkout@main
-#     - name: Use Node.js ${{ env.NODE_VERSION }}
-#       uses: actions/setup-node@v4
-#       with:
-#         node-version: ${{ env.NODE_VERSION }}
-#     - name: npm install, build, and test
-#       run: |
-#         # Build and test the project, then
-#         # deploy to Azure Web App.
-#         npm install
-#         npm run build --if-present
-#         # npm run test --if-present
-#       working-directory: .
-#     - name: 'Deploy to Azure WebApp'
-#       uses: azure/webapps-deploy@v3
-#       with: 
-#         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-#         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-#         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    - name: Setup Node 10.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: 'npm install, build, and test'
+      run: |
+        RUN npm ci --omit=dev
+        RUN npm run build 
+      
+    - name: 'Run Azure webapp deploy action using publish profile credentials'
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: node-rn
+        publish-profile: ${{ secrets.AZURE_COGNITIVE_WEBAPP_PUBLISH_PROFILE }}

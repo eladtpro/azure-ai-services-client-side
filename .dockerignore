@@ -1,0 +1,6 @@
+.github
+.vscode
+Dockerfile
+LICENSE.md
+README.md
+env.sample
