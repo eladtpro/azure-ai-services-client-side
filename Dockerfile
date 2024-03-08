@@ -12,7 +12,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # npm ci – production to install the application dependencies, and only install the one that is non-dev (production)
-RUN npm ci --production
+RUN npm ci --omit=dev
 # If you are building your code for production
 # RUN npm ci --only=production
 RUN npm run build 

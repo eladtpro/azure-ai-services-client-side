@@ -1,7 +1,6 @@
 require('dotenv').config();
 const cors = require("cors");
 const express = require('express');
-const pino = require('express-pino-logger')();
 const path = require('path');
 const app = express();
 
@@ -16,7 +15,6 @@ app.use(
 
 app.use(express.json()); // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
-app.use(pino);
 
 const buildPath = path.normalize(path.join(__dirname, '../build'));
 // const buildPath = path.join(__dirname, '../src/build');
