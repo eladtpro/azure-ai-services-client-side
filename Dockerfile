@@ -20,5 +20,5 @@ ENV NODE_ENV production
 EXPOSE 80 
 USER node 
 
-CMD [ "node", "./server/index.js" ]
+CMD [ "node", "./app/server/index.js" ]
 # ENTRYPOINT [ "node", "./server/index.js" ]
