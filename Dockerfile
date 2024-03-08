@@ -17,7 +17,7 @@ COPY --chown=node:node --from=prod-build /app/server /app/
 COPY --chown=node:node --from=prod-build /app/hostingstart.js /app/
 
 WORKDIR /app
-
+RUN ls -la
 ENV NODE_ENV production 
 EXPOSE 80 
 USER node 
