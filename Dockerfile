@@ -12,9 +12,9 @@ RUN npm run build
 
 FROM node:20 AS prod-run
 
-COPY --chown=node:node --from=prod-build /app/public /app/
-COPY --chown=node:node --from=prod-build /app/server /app/
-COPY --chown=node:node --from=prod-build /app/hostingstart.js /app/
+COPY --chown=node:node --from=prod-build /app/public /app/public
+COPY --chown=node:node --from=prod-build /app/server /app/server
+COPY --chown=node:node --from=prod-build /app/hostingstart.js /app/hostingstart.js
 
 WORKDIR /app
 RUN ls -la
