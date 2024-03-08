@@ -34,7 +34,7 @@ export default function App() {
     const [recognizingText, setRecognizingText] = useState('');
     const [language, setLanguage] = useState('he-IL');
     const [translateLanguage, setTranslateLanguage] = useState('en-US');
-    const [name, setName] = useState('Elad');
+    const [name, setName] = useState('');
     const [config, setConfig] = useState(undefined);
     const [socketEntry, setSocketEntry] = useState(undefined);
 
