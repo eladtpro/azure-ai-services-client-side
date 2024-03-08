@@ -9,7 +9,8 @@ ENV NODE_ENV production
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# COPY package*.json ./
+COPY . .
 RUN ls -la
 
 # npm ci – production to install the application dependencies, and only install the one that is non-dev (production)
@@ -18,7 +19,7 @@ RUN npm ci --omit=dev
 # RUN npm ci --only=production
 RUN npm run build 
 
-COPY . .
+# COPY . .
 
 ENV NODE_ENV production 
 
