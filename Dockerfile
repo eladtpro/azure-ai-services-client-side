@@ -10,17 +10,17 @@ RUN npm ci --omit=dev
 RUN npm run build 
 
 
-FROM node:20 AS prod-run
+# FROM node:20 AS prod-run
 
-COPY --chown=node:node --from=prod-build /app/public /app/public
-COPY --chown=node:node --from=prod-build /app/server /app/server
-COPY --chown=node:node --from=prod-build /app/hostingstart.js /app/hostingstart.js
+# COPY --chown=node:node --from=prod-build /app/public /app/public
+# COPY --chown=node:node --from=prod-build /app/server /app/server
+# COPY --chown=node:node --from=prod-build /app/hostingstart.js /app/hostingstart.js
 
-WORKDIR /app
-RUN ls -la
-ENV NODE_ENV production 
-EXPOSE 80 
-USER node 
+# WORKDIR /app
+# RUN ls -la
+# ENV NODE_ENV production 
+# EXPOSE 80 
+# USER node 
 
 CMD [ "node", "./server/index.js" ]
 # ENTRYPOINT [ "node", "./server/index.js" ]
