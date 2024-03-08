@@ -10,6 +10,7 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
+RUN ls -la
 
 # npm ci – production to install the application dependencies, and only install the one that is non-dev (production)
 RUN npm ci --omit=dev
