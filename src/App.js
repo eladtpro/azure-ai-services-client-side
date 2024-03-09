@@ -27,8 +27,6 @@ export default function App() {
     const LPtheme = createTheme(getLPTheme('dark'));
     const [entries, setEntries] = useState([]);
     const [status, setStatus] = useState(Status.IDLE);
-    // const [conversation, setConversation] = useState('');
-    // const [translation, setTranslation] = useState('');
     const [summarization, setSummarization] = useState(undefined);
     const [recognizedText, setRecognizedText] = useState('');
     const [recognizingText, setRecognizingText] = useState('');
@@ -74,17 +72,6 @@ export default function App() {
         registerSocket(config.socketPort, onMessage, onSync);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [config]);
-
-    // useEffect(() => {
-    //     let conv = '', trans = '';
-    //     for (const entry of entries) {
-    //         conv += `[${entry.timestamp}] ${entry.name === name ? 'Me' : name}:    ${entry.text}.\n`;
-    //         trans += `[${entry.timestamp}] ${entry.name === name ? 'Me' : name}:    ${entry.translation || '...'}.\n`;
-    //     }
-
-    //     setConversation(conv);
-    //     setTranslation(trans);
-    // }, [entries]);
 
     useEffect(() => {
         if (entries.length === 0) return;
@@ -174,10 +161,10 @@ export default function App() {
                                     </Item>
                                     <Item>
                                         {status & Status.ACTIVE ?
-                                            <Button variant="outlined" size="medium" fullWidth endIcon={<MicNone />} onClick={async () => await handleStopSttClick()} disabled={!name && status & Status.ACTIVE} >
+                                            <Button variant="outlined" size="medium" fullWidth endIcon={<MicNone />} onClick={async () => await handleStopSttClick()} disabled={!name && (status & Status.ACTIVE)} >
                                                 Stop
                                             </Button>
-                                            : <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={async () => await handleStartSttClick()} disabled={!name && status & Status.INACTIVE} >
+                                            : <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={async () => await handleStartSttClick()} disabled={!name && (status & Status.INACTIVE)} >
                                                 Listen
                                             </Button>
                                         }
@@ -194,27 +181,6 @@ export default function App() {
                                     <Grid item xs={12}>
                                         <Chat entries={entries} name={name} />
                                     </Grid>
-                                    {/* <Grid item xs={6}>
-                                        <TextField
-                                            id="outlined-multiline-static"
-                                            label="Conversation"
-                                            multiline
-                                            rows={20}
-                                            value={conversation}
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        {status === Status.TRANSLATING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />}
-                                        <TextField
-                                            id="outlined-multiline-static"
-                                            label="Translation"
-                                            multiline
-                                            rows={20}
-                                            value={translation}
-                                            fullWidth
-                                        />
-                                    </Grid> */}
                                     <Grid item xs={5}>
                                         {status & Status.ACTIVE && (status & Status.RECOGNIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
                                         {(status & Status.ACTIVE || status === Status.TRANSLATING) && <TextField

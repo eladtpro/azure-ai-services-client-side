@@ -1,8 +1,7 @@
 import axios from 'axios';
 import Cookie from 'universal-cookie';
 const { v4: uuidv4 } = require('uuid');
-axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
-// axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL || window.location.origin; // 'http://localhost:3001'
+axios.defaults.baseURL = window.location.origin;
 let configCache = undefined;
 
 export const Status = {

@@ -3,7 +3,7 @@ const { Server } = require("socket.io");
 
 const entries = [];
 
-console.log('Socket env: ' + process.env);
+console.log('Socket env:/n' + JSON.stringify(process.env, null, 2));
 console.log('Socket listening to: ' + process.env.SOCKET_PORT);
 const io = new Server(process.env.SOCKET_PORT, {
     cors: {
