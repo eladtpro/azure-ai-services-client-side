@@ -16,8 +16,8 @@ jobs:
         node-version: '10.x'
     - name: 'npm install, build, and test'
       run: |
-        RUN npm ci --omit=dev
-        RUN npm run build 
+        npm ci --omit=dev
+        npm run build 
       
     - name: 'Run Azure webapp deploy action using publish profile credentials'
       uses: azure/webapps-deploy@v2
