@@ -10,7 +10,7 @@ import { TableVirtuoso } from 'react-virtuoso';
 
 const columns = [
     {
-        width: 100,
+        width: 50,
         label: 'Timestamp',
         dataKey: 'timestamp',
     },
@@ -67,7 +67,7 @@ function rowContent(_index, row) {
     return (
         <React.Fragment>
             {columns.map((column) => (
-                <TableCell
+                <TableCell height={20}
                     key={column.dataKey}
                     align={column.numeric || false ? 'right' : 'left'}
                 >
