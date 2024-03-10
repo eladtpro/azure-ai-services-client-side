@@ -164,7 +164,7 @@ export default function App() {
                                             <Button variant="outlined" size="medium" fullWidth endIcon={<MicNone />} onClick={async () => await handleStopSttClick()} disabled={!name && (status & Status.ACTIVE)} >
                                                 Stop
                                             </Button>
-                                            : <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={async () => await handleStartSttClick()} disabled={!name && (status & Status.INACTIVE)} >
+                                            : <Button variant="outlined" size="medium" fullWidth endIcon={<Mic />} onClick={async () => await handleStartSttClick()} disabled={!name && (status & Status.INACTIVE) === 0} >
                                                 Listen
                                             </Button>
                                         }
@@ -182,7 +182,7 @@ export default function App() {
                                         <Chat entries={entries} name={name} />
                                     </Grid>
                                     <Grid item xs={5}>
-                                        {status & Status.ACTIVE && (status & Status.RECOGNIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
+                                        {(status & Status.ACTIVE) !== 0 && (status & Status.RECOGNIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
                                         {(status & Status.ACTIVE || status === Status.TRANSLATING) && <TextField
                                             id="outlined-multiline-static"
                                             label="Listening..."

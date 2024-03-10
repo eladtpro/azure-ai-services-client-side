@@ -67,7 +67,7 @@ function rowContent(_index, row) {
     return (
         <React.Fragment>
             {columns.map((column) => (
-                <TableCell height={20}
+                <TableCell
                     key={column.dataKey}
                     align={column.numeric || false ? 'right' : 'left'}
                 >

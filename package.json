@@ -39,11 +39,12 @@
   },
   "scripts": {
     "start": "node server/index.js",
+    "start-client": "react-scripts start",
     "build": "npm ci --omit=dev && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node-env-run server --exec nodemon | pino-colada",
-    "dev": "run-p server start",
+    "dev": "run-p server start-client",
     "stage": "run-p build server",
     "prod": "npm ci --omit=dev && npm run build && node server/index.js"
   },

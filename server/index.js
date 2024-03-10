@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 const buildPath = path.normalize(path.join(__dirname, '../build'));
 // const buildPath = path.join(__dirname, '../src/build');
 app.use(express.static(buildPath));
-
+const port = (process.env.NODE_ENV || 'development' === 'development') ? process.env.SERVER_PORT : process.env.PORT;
 app.get('/api/config', (req, res) => {
     res.send({
         translateKey: process.env.TRANSLATE_KEY,
@@ -31,7 +31,7 @@ app.get('/api/config', (req, res) => {
         languageRegion: process.env.LANGUAGE_REGION,
         languageEndpoint: process.env.LANGUAGE_ENDPOINT,
         socketPort: process.env.SOCKET_PORT,
-        port: process.env.PORT
+        port
     });
 });
 
@@ -39,6 +39,6 @@ app.get('(/*)?', async (req, res, next) => {
     res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-app.listen(process.env.PORT, () =>
-    console.log(`Express server is running on ${process.env.WEBSITE_HOSTNAME}  port: ${process.env.PORT}`)
+app.listen(port, () =>
+    console.log(`Express server is running on ${process.env.WEBSITE_HOSTNAME}  port: ${port}`)
 );
