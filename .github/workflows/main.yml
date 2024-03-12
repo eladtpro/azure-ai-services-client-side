@@ -50,17 +50,17 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      # - name: Determine npm cache directory path
-      #   id: npm-cache-dir
-      #   shell: bash
-      #   run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
+      - name: Determine npm cache directory path
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
 
-      # - uses: actions/cache@v3
-      #   id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
-      #   with:
-      #     path: ${{ steps.npm-cache-dir.outputs.dir }}
-      #     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-      #     restore-keys: ${{ runner.os }}-node-      
+      - uses: actions/cache@v3
+        id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-      
 
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
@@ -69,6 +69,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         # if: steps.setup-node.outputs.npm-cache-hit != 'true'
+        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: unzip release.zip
 
       - name: 'Deploy to Azure Web App'

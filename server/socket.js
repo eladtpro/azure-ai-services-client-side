@@ -11,13 +11,13 @@ const io = new Server(process.env.SOCKET_PORT, {
     }
 });
 
-io.configure(function() {
-  // Force websocket
-  io.set('transports', ['websocket']);
+// io.configure(function() {
+//   // Force websocket
+//   io.set('transports', ['websocket']);
 
-  // Force SSL
-  io.set('match origin protocol', true);
-});
+//   // Force SSL
+//   io.set('match origin protocol', true);
+// });
 
 // Send current time to all connected clients
 function broadcast(entry) {
