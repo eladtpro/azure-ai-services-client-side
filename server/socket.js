@@ -1,43 +1,36 @@
 require('dotenv').config();
-const { Server } = require("socket.io");
-
+// const { Server } = require("socket.io");
 const entries = [];
 
-//console.log('Socket env:/n' + JSON.stringify(process.env, null, 2));
-console.log('Socket listening to: ' + process.env.SOCKET_PORT);
-const io = new Server(process.env.SOCKET_PORT, {
-    cors: {
-        origin: process.env.CORS_ALLOW_ORIGIN
+module.exports = function(http) {
+    const io = require('socket.io')(http, { 'cors': { 'methods': ['GET', 'PATCH', 'POST', 'PUT'], 'origin': true /* accept from any domain */ } });
+    function broadcast(entry) {
+        io.emit('broadcast', entry);
     }
-});
 
-// io.configure(function() {
-//   // Force websocket
-//   io.set('transports', ['websocket']);
+    function addEntry(entry) {
+        console.log(entry);
+        entries.push(entry);
+        entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+        broadcast(entry)
+    }
 
-//   // Force SSL
-//   io.set('match origin protocol', true);
-// });
+    // Emit welcome message on connection
+    io.on('connection', function (socket) {
+        // Use socket to communicate with this particular client only, sending it it's own id
+        socket.emit('connected', { message: `Socket connected with id:  ${socket.id}` });
 
-// Send current time to all connected clients
-function broadcast(entry) {
-    io.emit('broadcast', entry);
-}
+        socket.on('message', addEntry);
+        socket.on('sync', () =>
+            socket.emit('sync', entries.map(entry => entry.toJSON())));
+        socket.on('disconnect', () => addEntry({ type: 'disconnect', timestamp: new Date().toISOString() }));
+    });
 
-function addEntry(entry) {
-    console.log(entry);
-    entries.push(entry);
-    entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-    broadcast(entry)
-}
+    http.listen(process.env.SOCKET_PORT, function(){
+        console.log('Express server listening on port ' + process.env.SOCKET_PORT);
+    });
+};
 
-// Emit welcome message on connection
-io.on('connection', function (socket) {
-    // Use socket to communicate with this particular client only, sending it it's own id
-    socket.emit('connected', { message: `Socket connected with id:  ${socket.id}` });
 
-    socket.on('message', addEntry);
-    socket.on('sync', () =>
-        socket.emit('sync', entries.map(entry => entry.toJSON())));
-    socket.on('disconnect', () => addEntry({ type: 'disconnect', timestamp: new Date().toISOString() }));
-});
+
+
