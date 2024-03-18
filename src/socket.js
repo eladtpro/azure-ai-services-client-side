@@ -3,10 +3,10 @@ var io = require('socket.io-client');
 let socket = undefined;
 let registered = false; 
 
-export function registerSocket(port, onMessage, onSync) {
+export function registerSocket(endpoint, onMessage, onSync) {
     if (registered) return false;
 
-    const endpoint = `${window.location.protocol}//${window.location.hostname}:${port}`;
+    // const endpoint = `${window.location.protocol}//${window.location.hostname}:${port}`;
     console.log('Connecting to ' + endpoint);
     socket = io(endpoint);
     socket.on('connected', function(data) {

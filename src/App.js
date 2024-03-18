@@ -69,7 +69,7 @@ export default function App() {
             console.log(entries);
             setEntries(entries);
         }
-        registerSocket(config.socketPort, onMessage, onSync);
+        registerSocket(config.socketEndpoint, onMessage, onSync);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [config]);
 
