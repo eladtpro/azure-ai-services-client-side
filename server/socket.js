@@ -3,6 +3,11 @@ require('dotenv').config();
 const entries = [];
 
 module.exports = function(http) {
+    if(process.env.ENABLE_SOCKET_SERVER == "0") {
+        console.log('Socket server is disabled');
+        return;
+    }
+
     const io = require('socket.io')(http, { 'cors': { 'methods': ['GET', 'PATCH', 'POST', 'PUT'], 'origin': true /* accept from any domain */ } });
     function broadcast(entry) {
         io.emit('broadcast', entry);
