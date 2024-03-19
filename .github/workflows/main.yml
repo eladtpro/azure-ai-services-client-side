@@ -68,8 +68,7 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        # if: steps.setup-node.outputs.npm-cache-hit != 'true'
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+        # if: steps.npm-cache.outputs.cache-hit != 'true'
         run: unzip release.zip
 
       - name: 'Deploy to Azure Web App'
