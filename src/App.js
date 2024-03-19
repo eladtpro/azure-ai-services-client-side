@@ -36,7 +36,6 @@ export default function App() {
     const [config, setConfig] = useState(undefined);
     const [socketEntry, setSocketEntry] = useState(undefined);
 
-
     useEffect(() => {
         if(!socketEntry) return;
         if(!name) return;
@@ -44,6 +43,7 @@ export default function App() {
         if(!setEntries) return;
         if (socketEntry.name === name) return;
         if (socketEntry.type !== 'message') return;
+        if(entries.findIndex((entry) => entry.id === socketEntry.id) !== -1) return;
         const copy = [...entries, socketEntry];
         copy.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
         setEntries(copy);
