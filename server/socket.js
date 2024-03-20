@@ -1,44 +1,36 @@
 require('dotenv').config();
-// const { Server } = require("socket.io");
-const entries = [];
+const { Server } = require("socket.io");
+const { useAzureSocketIO } = require("@azure/web-pubsub-socket.io");
 
-module.exports = function(http) {
-    if(process.env.ENABLE_SOCKET_SERVER == "0") {
-        console.log('Socket server is disabled');
-        return;
-    }
+let io = new Server(process.env.SOCKET_PORT);
 
-    const io = require('socket.io')(http, { 
-        cors: { 'methods': ['GET', 'PATCH', 'POST', 'PUT'], 'origin': true /* accept from any domain */ },
-        perMessageDeflate: false
-    });
-    function broadcast(entry) {
-        io.emit('broadcast', entry);
-    }
+// Use the following line to integrate with Web PubSub for Socket.IO
+useAzureSocketIO(io, {
+    hub: "Hub", // The hub name can be any valid string.
+    connectionString: process.env.SOCKET_CONNECTION_STRING
+});
 
-    function addEntry(entry) {
-        console.log(entry);
-        entries.push(entry);
-        entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-        broadcast(entry)
-    }
+function broadcast(entry) {
+    io.emit('broadcast', entry);
+}
 
-    // Emit welcome message on connection
-    io.on('connection', function (socket) {
-        // Use socket to communicate with this particular client only, sending it it's own id
-        socket.emit('connected', { message: `Socket connected with id:  ${socket.id}` });
+function addEntry(entry) {
+    if(entry.id === undefined) return;
+    if(entries.findIndex((e) => e.id === entry.id) !== -1) return;
+    console.log(entry);
+    entries.push(entry);
+    entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    broadcast(entry)
+}
 
-        socket.on('message', addEntry);
-        socket.on('sync', () =>
-            socket.emit('sync', entries.map(entry => entry.toJSON())));
-        socket.on('disconnect', () => addEntry({ type: 'disconnect', timestamp: new Date().toISOString() }));
-    });
+// Emit welcome message on connection
+io.on('connection', function (socket) {
+    // Use socket to communicate with this particular client only, sending it it's own id
+    socket.emit('connected', { message: `Socket connected with id:  ${socket.id}` });
 
-    http.listen(process.env.SOCKET_PORT, function(){
-        console.log('Express server listening on port ' + process.env.SOCKET_PORT);
-    });
-};
-
-
-
+    socket.on('message', addEntry);
+    socket.on('sync', () =>
+        socket.emit('sync', entries.map(entry => entry.toJSON())));
+    socket.on('disconnect', () => addEntry({ type: 'disconnect', timestamp: new Date().toISOString() }));
+});
 

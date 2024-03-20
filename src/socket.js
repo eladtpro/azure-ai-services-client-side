@@ -8,8 +8,12 @@ export function registerSocket(endpoint, onMessage, onSync) {
 
     // const endpoint = `${window.location.protocol}//${window.location.hostname}:${port}`;
     console.log('Connecting to ' + endpoint);
-    socket = io(endpoint);
+    const socket = io(endpoint, {
+        path: "/clients/socketio/hubs/Hub",
+    });
+
     socket.on('connected', function(data) {
+        console.log('Socket connected to server')
         console.log(data);
     });
     
