@@ -8,7 +8,10 @@ module.exports = function(http) {
         return;
     }
 
-    const io = require('socket.io')(http, { 'cors': { 'methods': ['GET', 'PATCH', 'POST', 'PUT'], 'origin': true /* accept from any domain */ } });
+    const io = require('socket.io')(http, { 
+        cors: { 'methods': ['GET', 'PATCH', 'POST', 'PUT'], 'origin': true /* accept from any domain */ },
+        perMessageDeflate: false
+    });
     function broadcast(entry) {
         io.emit('broadcast', entry);
     }
