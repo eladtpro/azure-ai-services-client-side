@@ -1,4 +1,4 @@
-FROM node:20 AS prod-build
+FROM node:20-alpine
 
 # ENV PATH intruction ensures that the executables created during the npm build or the yarn build processes can be found.
 ENV PATH /app/node_modules/.bin:$PATH 
@@ -7,20 +7,12 @@ ENV PATH /app/node_modules/.bin:$PATH
 WORKDIR /app
 COPY . .
 RUN npm ci --omit=dev
-RUN npm run build 
-
-
-# FROM node:20 AS prod-run
-
-# COPY --chown=node:node --from=prod-build /app/public /app/public
-# COPY --chown=node:node --from=prod-build /app/server /app/server
-# COPY --chown=node:node --from=prod-build /app/hostingstart.js /app/hostingstart.js
+RUN npm run build --if-present
 
 # WORKDIR /app
 RUN ls -la
 ENV NODE_ENV production 
 EXPOSE 80 
-USER node 
+USER nextjs 
 
-CMD [ "node", "./server/index.js" ]
-# ENTRYPOINT [ "node", "./server/index.js" ]
+CMD HOSTNAME="0.0.0.0" node server.js

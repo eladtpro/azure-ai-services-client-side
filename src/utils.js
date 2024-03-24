@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookie from 'universal-cookie';
 const { v4: uuidv4 } = require('uuid');
-axios.defaults.baseURL = process.env.REACT_APP_WEBSITE_HOSTNAME || window.location.origin;
+// axios.defaults.baseURL = window.location.origin;
 let configCache = undefined;
 
 export const Status = {
@@ -17,10 +17,15 @@ export const Status = {
     INACTIVE: 0 | 32
 };
 
-export function buildMessage(name, text, language, role = 'Agent') {
+export function validateEntry(entry) {
+    const requiredProperties = ['type', 'timestamp', 'id'];
+    return entry && requiredProperties.every(prop => entry.hasOwnProperty(prop));
+}
+
+export function buildMessage(name, text, language, translateLanguage, type = 'message', role = 'Agent') {
     const date = new Date();
     const nameId = name.replace(' ', '_');
-    return { id: `${nameId}_${toFiletime(date)}`, timestamp: language ? date.toLocaleTimeString(language): date.toTimeString(), name, text, role, language, participantId: nameId, translation: undefined };
+    return { id: `${nameId}_${toFiletime(date)}`, timestamp: language ? date.toLocaleTimeString(language) : date.toTimeString(), name, text, role, type, language, translateLanguage, participantId: nameId, translation: undefined };
 }
 
 function toFiletime(date) {

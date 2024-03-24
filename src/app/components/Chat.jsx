@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { TableVirtuoso } from 'react-virtuoso';
+import { validateEntry } from '../../utils';
 
 const columns = [
     {
-        width: 50,
+        width: 80,
         label: 'Timestamp',
         dataKey: 'timestamp',
     },
@@ -20,14 +15,9 @@ const columns = [
         dataKey: 'name',
     },
     {
-        width: 200,
-        label: 'Conversation',
-        dataKey: 'conversation',
-    },
-    {
-        width: 200,
-        label: 'Translation',
-        dataKey: 'translation',
+        width: 400,
+        label: '',
+        dataKey: 'text',
     }
 ];
 
@@ -50,7 +40,7 @@ function fixedHeaderContent() {
                 <TableCell
                     key={column.dataKey}
                     variant="head"
-                    align={column.numeric || false ? 'right' : 'left'}
+                    align="left"
                     style={{ width: column.width }}
                     sx={{
                         backgroundColor: 'background.paper',
@@ -69,8 +59,7 @@ function rowContent(_index, row) {
             {columns.map((column) => (
                 <TableCell
                     key={column.dataKey}
-                    align={column.numeric || false ? 'right' : 'left'}
-                >
+                    align="left">
                     {row[column.dataKey]}
                 </TableCell>
             ))}
@@ -83,7 +72,14 @@ export default function Chat({ name, entries }) {
     useEffect(() => {
         if (!entries) return;
         if (!name) return;
-        setRows(entries.map(entry => ({ timestamp: entry.timestamp, name: (entry.name === name ? 'Me' : name),conversation: entry.text, translation: entry.translation || '' })));
+        const tmp = entries.filter(validateEntry).map((entry) => {
+            return {
+                timestamp: entry.timestamp,
+                name: (entry.name === name) ? 'Me' : entry.name,
+                text: (entry.name === name) ? entry.text : entry.translation
+            };
+        });
+        setRows(tmp);
     }, [entries, name]);
 
     return (

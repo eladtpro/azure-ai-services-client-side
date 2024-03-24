@@ -1,73 +1,42 @@
 {
-  "name": "speech-sample",
+  "name": "azure-transcribe-translate",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "dev": "env-cmd -f .env node server.js",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js",
+    "lint": "next lint",
+    "server": "node-env-run server --exec nodemon | pino-colada",
+    "local": "run-p server dev",
+    "prod": "npm ci --omit=dev && npm run build && node server/index.js"
+  },
   "dependencies": {
     "@azure/ai-language-text": "^1.1.0",
     "@azure/web-pubsub-socket.io": "^1.1.0",
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
-    "@microsoft/signalr": "^8.0.0",
-    "@mui/icons-material": "^5.15.11",
-    "@mui/material": "^5.15.11",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^14.4.3",
-    "axios": "^1.4.0",
-    "dotenv": "^16.3.1",
-    "microsoft-cognitiveservices-speech-sdk": "^1.32.0",
-    "react": "^17.0.0 || ^18.0.0",
-    "react-dom": "^17.0.0 || ^18.0.0",
-    "react-scripts": "5.0.1",
-    "react-virtuoso": "^4.7.1",
+    "@mui/icons-material": "^5.15.14",
+    "@mui/material": "^5.15.14",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "microsoft-cognitiveservices-speech-sdk": "^1.36.0",
+    "next": "^14.1.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-virtuoso": "^4.7.4",
     "socket.io-client": "^4.7.5",
-    "universal-cookie": "^4.0.4",
-    "web-vitals": "^3.3.2"
-  },
-  "peerDependencies": {
-    "react": "^17.0.0 || ^18.0.0",
-    "react-dom": "^17.0.0 || ^18.0.0"
+    "universal-cookie": "^7.1.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "body-parser": "^1.20.2",
-    "express": "^4.18.2",
+    "autoprefixer": "^10.0.1",
+    "env-cmd": "^10.1.0",
+    "express": "^4.19.1",
     "node-env-run": "^4.0.2",
-    "nodemon": "^3.0.1",
-    "npm-run-all": "^4.1.5",
-    "pino-colada": "^2.2.2"
-  },
-  "scripts": {
-    "start": "node server/index.js",
-    "start-client": "react-scripts start",
-    "build": "npm ci --omit=dev && react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "server": "node-env-run server --exec nodemon | pino-colada",
-    "dev": "run-p server start-client",
-    "stage": "run-p build server",
-    "prod": "npm ci --omit=dev && npm run build && node server/index.js"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "overrides": {
-    "css-select": "^5.1.0"
-  },
-  "proxy": "http://localhost:3001"
+    "nodemon": "^3.1.0",
+    "pino-colada": "^2.2.2",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0"
+  }
 }

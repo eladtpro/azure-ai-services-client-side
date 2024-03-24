@@ -1,10 +1,9 @@
 var io = require('socket.io-client');
 
-let socket = undefined;
-let registered = false; 
+export let sendMessage = undefined;
 
 export function registerSocket(endpoint, onMessage, onSync) {
-    if (registered) return false;
+    if (sendMessage) return false;
 
     // const endpoint = `${window.location.protocol}//${window.location.hostname}:${port}`;
     console.log('Connecting to ' + endpoint);
@@ -12,17 +11,14 @@ export function registerSocket(endpoint, onMessage, onSync) {
         path: "/clients/socketio/hubs/Hub",
     });
 
-    socket.on('connected', function(data) {
+    socket.on('connected', function (data) {
         console.log('Socket connected to server')
         console.log(data);
     });
-    
+
     socket.on('broadcast', onMessage);
     socket.on('sync', onSync);
-    registered = true;
-    return true;
-}
 
-export function sendMessage(message) {
-    socket.emit('message', message);
+    sendMessage = (message) =>
+        socket.emit('message', message);
 }
