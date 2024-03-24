@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Source the environment variables
-source ./env.sh
+source ./.env.sh
 
 echo "Checking if the resource group $RESOURCE_GROUP exists..."
 if az group exists --name $RESOURCE_GROUP; then
