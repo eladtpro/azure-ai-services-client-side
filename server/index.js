@@ -1,10 +1,7 @@
 const { createServer } = require('http')
 const { parse } = require('url')
 const next = require('next')
-const { Server } = require("socket.io");
-const { useAzureSocketIO } = require("@azure/web-pubsub-socket.io");
-
-console.log(`PORT: ${process.env.PORT}`);
+require('./socket');
 
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = process.env.WEBSITE_HOSTNAME
@@ -52,44 +49,4 @@ app.prepare().then(() => {
         .listen(port, () => {
             console.log(`> Ready on http://${hostname}:${port}`)
         })
-})
-
-// SOCKET.IO
-let io = new Server(process.env.SOCKET_PORT);
-let entries = [];
-
-function validateEntry(entry) {
-    const requiredProperties = ['type', 'timestamp', 'id'];
-    return entry && requiredProperties.every(prop => entry.hasOwnProperty(prop));
-}
-
-// Use the following line to integrate with Web PubSub for Socket.IO
-useAzureSocketIO(io, {
-    hub: "Hub", // The hub name can be any valid string.
-    connectionString: process.env.SOCKET_CONNECTION_STRING
-});
-
-function broadcast(entry) {
-    io.emit('broadcast', entry);
-}
-
-function addEntry(entry) {
-    if(!validateEntry(entry)) return;
-    if (entries.findIndex((e) => e.id === entry.id) !== -1) return;
-    console.log(entry);
-    entries.push(entry);
-    entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-    broadcast(entry)
-}
-
-// Emit welcome message on connection
-io.on('connection', function (socket) {
-    // Use socket to communicate with this particular client only, sending it it's own id
-    socket.emit('connected', { message: `Socket connected with id:  ${socket.id}` });
-
-    socket.on('message', addEntry);
-    socket.on('sync', () =>
-        socket.emit('sync', entries.map(entry => entry.toJSON())));
-    socket.on('clear', () => entries = []);
-    socket.on('disconnect', () => addEntry({ type: 'disconnect', timestamp: new Date().toISOString() }));
 });

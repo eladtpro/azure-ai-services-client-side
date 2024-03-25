@@ -15,4 +15,4 @@ ENV NODE_ENV production
 EXPOSE 80 
 USER nextjs 
 
-CMD HOSTNAME="0.0.0.0" node server.js
+CMD HOSTNAME="0.0.0.0" node ./server/index.js

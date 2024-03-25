@@ -1,6 +1,8 @@
 var io = require('socket.io-client');
 
 export let sendMessage = undefined;
+export let syncMessages = undefined;
+export let clearMessages = undefined;
 
 export function registerSocket(endpoint, onMessage, onSync) {
     if (sendMessage) return false;
@@ -14,6 +16,7 @@ export function registerSocket(endpoint, onMessage, onSync) {
     socket.on('connected', function (data) {
         console.log('Socket connected to server')
         console.log(data);
+        onSync(data.entries);
     });
 
     socket.on('broadcast', onMessage);
@@ -21,4 +24,8 @@ export function registerSocket(endpoint, onMessage, onSync) {
 
     sendMessage = (message) =>
         socket.emit('message', message);
+    syncMessages = () =>
+        socket.emit('sync');
+    clearMessages = () =>
+        socket.emit('clear');
 }

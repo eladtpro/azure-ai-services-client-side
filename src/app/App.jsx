@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from 'react';
 // import Image from "next/image";
 import { Grid, Stack, Box, TextField, Typography, LinearProgress, Button, IconButton, Tooltip } from '@mui/material';
-import { Mic, MicNone, Summarize } from '@mui/icons-material';
+import { Mic, MicNone, Summarize, DeleteSweep, SyncAlt } from '@mui/icons-material';
 import { translate, summarize, buildMessage, Status, getConfig } from '../utils';
 import { Language, Name, Summarization, Chat } from './components';
 import { startSttFromMic, stopSttFromMic } from '../stt';
-import { registerSocket, sendMessage } from '../socket';
+import { registerSocket, sendMessage, syncMessages, clearMessages } from '../socket';
 
 export default function App() {
     const [entries, setEntries] = useState([]);
@@ -129,31 +129,28 @@ export default function App() {
                             value={translateLanguage}
                             onChange={setTranslateLanguage}
                         />
+                    </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                    <Stack spacing={4} direction="row" maxWidth={200}>
                         {status & Status.ACTIVE ?
-                            <Tooltip title="Stop">
-                                <span>
-                                    <IconButton aria-label='Stop' onClick={async () => await handleStopSttClick()} disabled={!name && (status & Status.ACTIVE)} >
-                                        <MicNone />
-                                    </IconButton>
-                                </span>
-                            </Tooltip>
+                            <Button variant="outlined" startIcon={<MicNone />}  onClick={async () => await handleStopSttClick()} disabled={!name && (status & Status.ACTIVE)}>
+                                Stop
+                            </Button>
                             :
-                            <Tooltip title="Listen">
-                                <span>
-                                    <IconButton onClick={async () => await handleStartSttClick()} disabled={!name && (status & Status.INACTIVE) === 0} >
-                                        <Mic />
-                                    </IconButton>
-                                </span>
-                            </Tooltip>
+                            <Button variant="outlined" startIcon={<Mic />} onClick={async () => await handleStartSttClick()} disabled={!name && (status & Status.INACTIVE) === 0}>
+                                Listen
+                            </Button>
                         }
-                        <Tooltip title="Summarize">
-                            <span>
-                                <IconButton onClick={handleSummarizeClick} disabled={entries.length < 1} >
-                                    <Summarize />
-                                </IconButton>
-                            </span>
-                        </Tooltip>
-
+                        <Button variant="outlined" startIcon={<Summarize />} onClick={handleSummarizeClick} disabled={entries.length < 1}>
+                            Summarize
+                        </Button>
+                        <Button variant="outlined" startIcon={<SyncAlt />} onClick={syncMessages} disabled={entries.length < 1}>
+                            Sync
+                        </Button>
+                        <Button variant="outlined" startIcon={<DeleteSweep />} onClick={clearMessages} disabled={entries.length < 1}>
+                            Clear
+                        </Button>
                     </Stack>
                 </Grid>
                 <Grid item xs={12}>
@@ -173,7 +170,7 @@ export default function App() {
                     />}
                 </Grid>
                 <Grid item xs={7}>
-                    {summarization && (status & Status.SUMMARIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
+                    {summarization || (status & Status.SUMMARIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}
                     {summarization && <Summarization result={summarization} />}
                 </Grid>
             </Grid>
