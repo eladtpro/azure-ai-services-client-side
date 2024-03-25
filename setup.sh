@@ -30,20 +30,31 @@ fi
 echo "Checking if the container app $CONTAINER_APP_NAME exists..."
 names=$(az containerapp list --resource-group=$RESOURCE_GROUP --query "[].name" -o tsv)
 if [[ $names == *"$CONTAINER_APP_NAME"* ]]; then
-    echo "containerapp $CONTAINER_APP_NAME already exists in $names."
+    echo "containerapp $CONTAINER_APP_NAME already exists in $names, updating..."
+    az containerapp update \
+      --name $CONTAINER_APP_NAME \
+      --resource-group $RESOURCE_GROUP \
+      --image $CONTAINER_APP_IMAGE \
+      --set-env-vars NODE_ENV=production
 else
   env_vars=""
   while IFS='=' read -r key value
   do
+    if [ "$key" = "NODE_ENV" ]; then
+      value="production"
+    fi
     env_vars="$env_vars $key=\"${value}\""
   done < .env
 
   az containerapp create \
-      --name $CONTAINER_APP_NAME --resource-group $RESOURCE_GROUP --environment $CONTAINER_ENVIRONMENT_NAME \
+      --name $CONTAINER_APP_NAME \
+      --resource-group $RESOURCE_GROUP \
+      --environment $CONTAINER_ENVIRONMENT_NAME \
       --image $CONTAINER_APP_IMAGE \
       --registry-server $CONTAINER_REGISTRY_SERVER \
       --registry-identity $CONTAINER_REGISTRY_IDENTITY \
       --cpu "0.25" --memory "0.5Gi" \
+      --min-replicas 1 --max-replicas 1 \
       --env-vars $env_vars
 fi
 

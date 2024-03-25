@@ -1,13 +1,13 @@
 const { createServer } = require('http')
 const { parse } = require('url')
 const next = require('next')
-require('./socket');
 
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = process.env.WEBSITE_HOSTNAME
 const port = process.env.PORT
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port })
+require('./socket')(app);
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
