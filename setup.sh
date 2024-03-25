@@ -34,16 +34,18 @@ if [[ $names == *"$CONTAINER_APP_NAME"* ]]; then
     az containerapp update \
       --name $CONTAINER_APP_NAME \
       --resource-group $RESOURCE_GROUP \
-      --image $CONTAINER_APP_IMAGE \
-      --set-env-vars NODE_ENV=production
+      --image $CONTAINER_APP_IMAGE
 else
   env_vars=""
   while IFS='=' read -r key value
   do
     if [ "$key" = "NODE_ENV" ]; then
-      value="production"
+      value=production
     fi
-    env_vars="$env_vars $key=\"${value}\""
+    if [ "$key" = "PORT" ]; then
+      value=$CONTAINER_APP_PORT
+    fi
+    env_vars="$env_vars $key=$value"
   done < .env
 
   az containerapp create \
@@ -55,6 +57,7 @@ else
       --registry-identity $CONTAINER_REGISTRY_IDENTITY \
       --cpu "0.25" --memory "0.5Gi" \
       --min-replicas 1 --max-replicas 1 \
+      --ingress external --target-port $CONTAINER_APP_PORT \
       --env-vars $env_vars
 fi
 
