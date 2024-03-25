@@ -25,11 +25,7 @@ export function validateEntry(entry) {
 export function buildMessage(name, text, language, translateLanguage, type = 'message', role = 'Agent') {
     const date = new Date();
     const nameId = name.replace(' ', '_');
-    return { id: `${nameId}_${toFiletime(date)}`, timestamp: language ? date.toLocaleTimeString(language) : date.toTimeString(), name, text, role, type, language, translateLanguage, participantId: nameId, translation: undefined };
-}
-
-function toFiletime(date) {
-    return date.getTime() * 1e4 + 116444736e9;
+    return { id: `${date.getTime()}`, timestamp: language ? date.toLocaleTimeString(language) : date.toTimeString(), name, text, role, type, language, translateLanguage, participantId: nameId, translation: undefined };
 }
 
 export async function getConfig() {
