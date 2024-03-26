@@ -15,6 +15,27 @@
 * Create Azure PubSub for Socket.io resource using this guide
 
 
+## Prepare the environment
+
+#### Set environment variables
+
+```
+    WEBSITE_HOSTNAME=http://localhost:3001
+    NODE_ENV='development'
+    PORT=3000
+    SOCKET_PORT=29011
+    SOCKET_ENDPOINT=https://<SOCKET_IO_SERVICE>.webpubsub.azure.com
+    SOCKET_CONNECTION_STRING=<SOCKET_IO_CONNECTION_STRING>
+    SPEECH_KEY=<SPEECH_KEY>
+    SPEECH_REGION=westeurope
+    LANGUAGE_KEY=<LANGUAGE_KEY>
+    LANGUAGE_REGION=westeurope
+    LANGUAGE_ENDPOINT=https://<LANGUAGE_SERVICE>.cognitiveservices.azure.com/
+    TRANSLATE_KEY=<TRANSLATE_KEY>
+    TRANSLATE_ENDPOINT=https://api.cognitive.microsofttranslator.com/
+    TRANSLATE_REGION=westeurope
+```
+
 
 
 ## Resources

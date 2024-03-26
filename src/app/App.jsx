@@ -28,7 +28,7 @@ export default function App() {
         if (socketEntry.name === name) return;
         if (socketEntry.type !== 'message') return;
         if (entries.findIndex((entry) => entry.id === socketEntry.id) !== -1) return;
-        const copy = [...entries, socketEntry];
+        const copy = [socketEntry, ...entries];
         copy.sort((a, b) => b.id.localeCompare(a.id));
         setEntries(copy);
     }, [socketEntry, name, entries, setEntries]);
@@ -61,20 +61,28 @@ export default function App() {
         if (entries.length === 0) return;
         if (entries.every(item => !!item.translation)) return;
 
-        const translated = entries.filter((entry) => !entry.translation);
-        if (translated.length === 0) return;
-        translated.map(async (entry) => {
-            entry.translation = await translate(entry.text, language, translateLanguage, status, setStatus)
-            sendMessage && sendMessage(entry);
-            setEntries([...entries], entry);
-        });
+        const untranslated = entries.filter((entry) => !entry.translation);
+        if (untranslated.length === 0) return;
+
+        const translateEntries = async () => {
+            const translated = await Promise.all(entries.map(async (entry) => {
+                if (!entry.translation) {
+                    entry.translation = await translate(entry.text, language, translateLanguage, status, setStatus);
+                    sendMessage && sendMessage(entry);
+                }
+                return entry;
+            }));
+            setEntries(translated);
+        }
+
+        translateEntries();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [entries]);
 
     useEffect(() => {
         if (!recognizedText) return;
         const entry = buildMessage(name, recognizedText, language, translateLanguage);
-        setEntries([...entries, entry])
+        setEntries([entry, ...entries])
         setRecognizingText('');
         setStatus((status | Status.LISTENING) & ~Status.RECOGNIZING);
         // eslint-disable-next-line react-hooks/exhaustive-deps
