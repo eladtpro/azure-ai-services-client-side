@@ -29,7 +29,7 @@ export default function App() {
         if (socketEntry.type !== 'message') return;
         if (entries.findIndex((entry) => entry.id === socketEntry.id) !== -1) return;
         const copy = [...entries, socketEntry];
-        copy.sort((a, b) => a.id.localeCompare(b.id));
+        copy.sort((a, b) => b.id.localeCompare(a.id));
         setEntries(copy);
     }, [socketEntry, name, entries, setEntries]);
 

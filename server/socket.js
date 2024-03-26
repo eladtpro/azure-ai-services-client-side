@@ -27,7 +27,7 @@ module.exports = function (app) {
         if (entries.findIndex((e) => e.id === entry.id) !== -1) return;
         console.log(entry);
         entries.push(entry);
-        entries.sort((a, b) => a.id.localeCompare(b.id));
+        entries.sort((a, b) => b.id.localeCompare(a.id));
         broadcast(entry)
     }
 

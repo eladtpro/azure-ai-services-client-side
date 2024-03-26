@@ -17,6 +17,13 @@
 
 
 
+## Resources
+
+![Azure AI Services](/assets/azure-resources.png)
+
+
+
+
 ## Links
 
 * [How to use conversation summarization](https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/how-to/conversation-summarization)

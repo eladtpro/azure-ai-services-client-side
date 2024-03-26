@@ -58,7 +58,7 @@ else
       --cpu "0.25" --memory "0.5Gi" \
       --min-replicas 1 --max-replicas 1 \
       --ingress external --target-port $CONTAINER_APP_PORT \
-      --env-vars $env_vars
+      --env-vars $env_vars 
 fi
 
 
