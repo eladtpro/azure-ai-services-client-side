@@ -34,7 +34,7 @@ if [[ $names == *"$CONTAINER_APP_NAME"* ]]; then
     az containerapp update \
       --name $CONTAINER_APP_NAME \
       --resource-group $RESOURCE_GROUP \
-      --image $CONTAINER_APP_IMAGE
+      --image $CONTAINER_APP_IMAGE 
 else
   env_vars=""
   while IFS='=' read -r key value

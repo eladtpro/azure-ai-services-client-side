@@ -83,15 +83,25 @@ export async function translate(text, from, to, status, setStatus) {
     }
 }
 
-export async function summarize(entries, language, status, setStatus) {
+export async function summarize(name, entries, language, status, setStatus) {
     // https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/how-to/conversation-summarization
     try {
+        setStatus(status | Status.SUMMARIZING);
         const config = await getConfig();
         const conversation = {
             displayName: 'Conversation Summarization',
             analysisInput: {
                 conversations: [{
-                    conversationItems: entries,
+                    conversationItems: entries.map(entry => {
+                        return {
+                            id: entry.id,
+                            text: (name === entry.name) ? entry.text : entry.translation,
+                            type: entry.type,
+                            participantId: entry.participantId,
+                            role: entry.role,
+                            timestamp: entry.timestamp
+                        };
+                    }),
                     language: language,
                     modality: "text",
                     id: "conversation1"
@@ -132,9 +142,15 @@ export async function summarize(entries, language, status, setStatus) {
             completed = res.data.tasks.completed > 0;
         }
 
-        return res.data;
+        const conv = res.data.tasks.items[0].results.conversations[0].summaries.map(summary => {
+            return { aspect: summary.aspect, text: summary.text }
+        });
+        return conv;
     } catch (err) {
-        console.log(err.message);
-        return `Error summarizing text. ${err.message}`;
+        console.log(err);
+        return [{ aspect: 'Error', text: `Error summarizing text. ${err}` }];
+    }
+    finally {
+        setStatus(status & ~Status.SUMMARIZING);
     }
 }

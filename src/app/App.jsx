@@ -88,12 +88,10 @@ export default function App() {
     }, [recognizingText]);
 
     function handleSummarizeClick() {
-        setStatus(status | Status.SUMMARIZING);
-        summarize(entries, language)
+        summarize(name, entries, language, status, setStatus)
             .then((result) => {
                 setSummarization(result);
-            })
-            .finally(() => setStatus(status & ~Status.SUMMARIZING));
+            });
     }
 
     async function handleStartSttClick() {
@@ -134,7 +132,7 @@ export default function App() {
                 <Grid item xs={12}>
                     <Stack spacing={4} direction="row" maxWidth={200}>
                         {status & Status.ACTIVE ?
-                            <Button variant="outlined" startIcon={<MicNone />}  onClick={async () => await handleStopSttClick()} disabled={!name && (status & Status.ACTIVE)}>
+                            <Button variant="outlined" startIcon={<MicNone />} onClick={async () => await handleStopSttClick()} disabled={!name && (status & Status.ACTIVE)}>
                                 Stop
                             </Button>
                             :

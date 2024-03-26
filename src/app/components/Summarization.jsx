@@ -12,20 +12,14 @@ export default function Summarization({ result }) {
 
   useEffect(() => {
     if (!result) return;
-    try {
-      const rows = result.tasks.items[0].results.conversations[0].summaries.map(entry =>
-        ({ aspect: entry.aspect, text: entry.text }));
-
-      setSummaries(rows);
-    } catch (error) {
-      setSummaries([{ aspect: 'Error', text: `Error translating text. ${error}` }]);
-    }
-
+    if(!result.length) return;
+    console.log(result);
+    setSummaries(result);
   }, [result]);
 
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 300 }} style={{ width: '100%' }} aria-label="simple table">
+      <Table sx={{ minWidth: 300 }} style={{ width: '100%' }} aria-label="Summarization table">
         <TableHead>
           <TableRow>
             <TableCell>Aspect (Summary)</TableCell>
