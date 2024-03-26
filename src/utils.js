@@ -122,9 +122,6 @@ export async function summarize(name, entries, language, status, setStatus) {
             ]
         };
         let data = JSON.stringify(conversation);
-        // const sumRes = await axios.post('/api/summarize', data);
-        // return sumRes.data;
-
         const headers = {
             headers: {
                 'Ocp-Apim-Subscription-Key': config.languageKey,
@@ -145,6 +142,7 @@ export async function summarize(name, entries, language, status, setStatus) {
         const conv = res.data.tasks.items[0].results.conversations[0].summaries.map(summary => {
             return { aspect: summary.aspect, text: summary.text }
         });
+        console.log(conv);
         return conv;
     } catch (err) {
         console.log(err);

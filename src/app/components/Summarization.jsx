@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 export default function Summarization({ result }) {
-  const [summaries, setSummaries] = useState([]);
+  const [summaries, setSummaries] = useState(result);
 
   useEffect(() => {
     if (!result) return;
