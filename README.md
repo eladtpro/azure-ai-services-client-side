@@ -2,13 +2,13 @@
 
 # The Client-Side of Azure AI Services
 
-[Introduction](#intro)
-[Scenario explaned](#scenario)
-[Prerequisites](#prerequisites)
-[Prepare the environment](#prepare)
-[Running it locally](#local)
-[Provision Azure Container App as a Next.js backend](#containerapp)
-[Resources Deployed in this solution (Azure)](#resources)
+[Introduction](#intro)  
+[Scenario explaned](#scenario)  
+[Prerequisites](#prerequisites)  
+[Prepare the environment](#prepare)  
+[Running it locally](#local)  
+[Provision Azure Container App as a Next.js backend](#containerapp)  
+[Resources Deployed in this solution (Azure)](#resources)  
 [Links](#links)
 
 ## <a name="intro"></a>Introduction
@@ -38,13 +38,13 @@ The app's backend is a slim Next.js Node.js server that uses Azure Web PubSub fo
 
 ## <a name="prepare"></a>Prepare the environment
 
-In this section we will cover the following:
-1. Get the repository.
-2. clone the repository to your local machine.
-3. Set the Next.js environment variables (.env).
-4. Set the environment variables for the setup.sh script (.env.sh).
-5. Create App Registration service principal. For letting the GitHub action to push the container image to the Azure Container Registry.
-6. Save the service principal credentials in GitHub secrets and GitHub enviroment variables.
+In this section we will cover the following:  
+1. Get the repository.  
+2. Set the Next.js environment variables (.env).  
+3. Set the environment variables for the setup.sh script (.env.sh).  
+4. Create App Registration service principal (GitHub secret).  
+For the GitHub action to push the container image to the Azure Container Registry.  
+5. Set the enviroment variables for the GitHub action.  
 
 
 #### 1. Get the repository
@@ -64,7 +64,7 @@ git push origin master
 git push --all
 ```
 
-#### 3. Set the Next.js environment variables (.env)
+#### 2. Set the Next.js environment variables (.env)
 > **Note:** Next.js local server is using the .env file to load the environment variables. The .env file should be created in the root of the project.
 > **Important**: The .env file should NOT be commited to the repository.
 > Use the [env.sample](/env.sample) template, create a new .env file in the project root and replace the placeholders with the actual values.
@@ -87,7 +87,7 @@ TRANSLATE_ENDPOINT=https://api.cognitive.microsofttranslator.com/
 TRANSLATE_REGION=westeurope
 ```
 
-#### 4. Set the environment variables for the setup.sh script (.env.sh)
+#### 3. Set the environment variables for the setup.sh script (.env.sh)
 > **Note:** [setup.sh](/setup.sh) script creates the Azure Container App resource that will run the Next.js server. The script is using the .env.sh file to load the environment variables. The .env.sh file should be created in the root of the project.
 > Use the [env.sh.sample](/env.sample) template, create a new .env.sh file in the project root and replace the placeholders with the actual values.
 > **Important**: The .env.sh file should NOT be commited to the repository.
@@ -108,7 +108,7 @@ LOGS_WORKSPACE_KEY=<LOGS_WORKSPACE_KEY>
 SUBSCRIPTION_ID=<SUBSCRIPTION_ID>
 ```
 
-#### 5. Create App Registration service principal (GitHub secret)
+#### 4. Create App Registration service principal (GitHub secret)
 
 > The app registration service principal is used by the GitHub action to push the container image to the Azure Container Registry. The service principal should have the **Contributor** role at the Azure Container Registry level, AcrPush is not enuogh access to resource manger is needed too.
 
@@ -140,7 +140,7 @@ The command will result in a JSON output that looks like the JSON blobk bwlow,
 ```
 
 
-#### 6. Set the enviroment variables for the GitHub action
+#### 5. Set the enviroment variables for the GitHub action
 
 At the GItHub repo setting, move to the **Variables** tab.
 1. Set the **CONTAINER_REGISTRY** variable to the name of the Azure Container Registry.
