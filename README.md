@@ -6,6 +6,8 @@
 [Scenario explaned](#scenario)
 [Prerequisites](#prerequisites)
 [Prepare the environment](#prepare)
+[Running it locally](#local)
+[Provision Azure Container App as a Next.js backend](#containerapp)
 [Resources Deployed in this solution (Azure)](#resources)
 [Links](#links)
 
@@ -37,7 +39,7 @@ The app's backend is a slim Next.js Node.js server that uses Azure Web PubSub fo
 ## <a name="prepare"></a>Prepare the environment
 
 In this section we will cover the following:
-1. Fork the repository.
+1. Get the repository.
 2. clone the repository to your local machine.
 3. Set the Next.js environment variables (.env).
 4. Set the environment variables for the setup.sh script (.env.sh).
@@ -45,20 +47,9 @@ In this section we will cover the following:
 6. Save the service principal credentials in GitHub secrets and GitHub enviroment variables.
 
 
-#### 1. Fork the repository
-1. On GitHub.com, navigate to the [octocat/Spoon-Knife](https://github.com/eladtpro/azure-transcribe-translate.git) repository.
-2. In the top-right corner of the page, click Fork.
-![Fork](/assets/fork-button.webp)
-3. Under "Owner," select the dropdown menu and click an owner for the forked repository.
-4. By default, forks are named the same as their upstream repositories. Optionally, to further distinguish your fork, in the "Repository name" field, type a name.
-5. Select **Copy the DEFAULT branch only**.
-6. Click **Create fork**.
+#### 1. Get the repository
 
-
-#### 2. Clone the repository to your local machine
-
-> **Note:** Replace `<USERNAME>` with your GitHub username.
-> **Note:** For more deatails about fork and clone a repository please refer to the [GitHub documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
+[Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) this repository to your enviroment, so you can make changes to the code and deploy the changes to your Azure subscription.
 
 ```
 mkdir azure-transcribe-translate
@@ -117,44 +108,76 @@ LOGS_WORKSPACE_KEY=<LOGS_WORKSPACE_KEY>
 SUBSCRIPTION_ID=<SUBSCRIPTION_ID>
 ```
 
-#### 5. Create App Registration service principal
+#### 5. Create App Registration service principal (GitHub secret)
+
+> The app registration service principal is used by the GitHub action to push the container image to the Azure Container Registry. The service principal should have the **Contributor** role at the Azure Container Registry level, AcrPush is not enuogh access to resource manger is needed too.
 
 ```
 # login to azure
 az login
 
 # create an service principle on the Azure Container Registry level
-az ad sp create-for-rbac --name aiservices --role AcrPush --scopes /subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.ContainerRegistry/registries/${CONTAINER_REGISTRY} --json-auth
+az ad sp create-for-rbac --name aiservices-github --role AcrPush --scopes /subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.ContainerRegistry/registries/${CONTAINER_REGISTRY} --sdk-auth
+
 ```
 
-The command will result in a JSON output that looks like this:
+The command will result in a JSON output that looks like the JSON blobk bwlow,
+**Copy the output and save it in a** [**GitHub secret**](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) named AZURE_CREDENTIALS.:
+
 ```
 {
-  "appId": "00000000-0000-0000-0000-000000000000",
-  "displayName": "aiservices",
-  "name": "http://aiservices",
-  "password": "00000000-0000-0000-0000-000000000000",
-  "tenant": "00000000-0000-0000-0000-000000000000"
+  "clientId": "00000000-0000-0000-0000-000000000000",
+  "clientSecret": "00000000000000000000000000000000",
+  "subscriptionId": "00000000-0000-0000-0000-000000000000",
+  "tenantId": "00000000-0000-0000-0000-000000000000",
+  "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
+  "resourceManagerEndpointUrl": "https://management.azure.com/",
+  "activeDirectoryGraphResourceId": "https://graph.windows.net/",
+  "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/",
+  "galleryEndpointUrl": "https://gallery.azure.com/",
+  "managementEndpointUrl": "https://management.core.windows.net/"
 }
 ```
 
-#### 6. Save the service principal credentials in GitHub secrets and GitHub enviroment variables
-1. On GitHub.com, navigate to the main page of the repository.
-2. Under your repository name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
-![Settings](/assets/repo-actions-settings.webp)
-3. In the "Security" section of the sidebar, select  Secrets and variables, then click Actions.
-4. Click the Secrets tab.
-![Secrets](/assets/actions-secrets-tab.webp)
-5. Click New repository secret.
-6. In the Name field, type **AZURE_CREDENTIALS** as a name for your secret.
-7. In the Secret field, enter the the output of the previous step as value for your secret.
-8. Click Add secret.
 
-1. Move to the **Variables** tab.
-2. Set the **CONTAINER_REGISTRY** variable to the name of the Azure Container Registry.
-3. Set the **RESOURCE_GROUP** variable for the resource group where you Container registry.
+#### 6. Set the enviroment variables for the GitHub action
+
+At the GItHub repo setting, move to the **Variables** tab.
+1. Set the **CONTAINER_REGISTRY** variable to the name of the Azure Container Registry.
+2. Set the **RESOURCE_GROUP** variable for the resource group where you Container registry.
 
 
+## <a name="local"></a>Running it locally
+After creating the Azure resources and setting up the environment, you can run the Next.js app locally.
+
+```
+npm install
+npm run dev
+```
+
+after the app is running, you can access it at [http://localhost:3000](http://localhost:3000)
+
+
+## <a name="containerapp"></a>Provision Azure Container App as a Next.js backend
+
+Run the [setup.sh](/setup.sh) script to create the Azure Container App resource that will run the Next.js server on Azure.
+
+```
+az login
+./setup.sh
+```
+
+Wait for the app to be deployed, the result will be the FQDN of the Azure Container App. 
+You can get the FQDN by running the following command:
+```
+az containerapp show \
+  --name $CONTAINER_APP_NAME \
+  --resource-group $RESOURCE_GROUP \
+  --query properties.configuration.ingress.fqdn 
+```
+
+
+> You can access it at the Application Url on the Container App resource overview blade.
 
 
 

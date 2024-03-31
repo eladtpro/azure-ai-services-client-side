@@ -68,13 +68,8 @@ fi
       #   "AZURE_STORAGE_CONNECTION_STRING=secretref:connection-string-secret" \
 
 
-# show the job yaml
+
 az containerapp show \
   --name $CONTAINER_APP_NAME \
   --resource-group $RESOURCE_GROUP \
-  --output yaml > containerapp.yaml
-
-# az ad sp create-for-rbac 
-#   --name $CONTAINER_APP_NAME --role contributor \
-#   --scopes /subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP \
-#   --json-auth
+  --query properties.configuration.ingress.fqdn 
