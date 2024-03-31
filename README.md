@@ -13,9 +13,13 @@
 
 ## <a name="intro"></a>Introduction
 
-This is the client-side of the Azure AI Services solution. It is a Next.js application that utilizes Azure AI services to provide real-time translation and summarization capabilities. The app leverages Azure Speech, Translator, and Language services to deliver the required features. 
+The purpose of this solution is to enable apps to incorporate AI capabilities. In the upcoming demo, I will demonstrate how to **transcribe**, **translate**, and **summarize** conversations between customers and businesses without making significant modifications to your existing apps.
 
-The app's backend is a slim Next.js Node.js server that uses Azure Web PubSub for Socket.IO to provide real-time, duplex communication between the client and the server. Additionally, the Next.js slim backend is hosted using Azure Container Apps.
+This app can be useful in various scenarios where two parties speak different languages and require simultaneous translation. For example, **it can be employed in call centers, where the representative and the customer do not speak the same language, by bank tellers dealing with foreign clients, by doctors communicating with elderly patients who do not speak the native language well**, and in other similar situations where both parties need to converse in their respective native languages.
+
+This is the client-side of the Azure AI Services solution. It is a Next.js application that utilizes Azure AI services to offer real-time translation and summarization functionalities. The app utilizes Azure Speech, Translator, and Language services to provide the necessary features.
+
+The app's backend is a slim Next.js Node.js server that uses Azure Web PubSub for Socket.IO to provide real-time, duplex communication between the client and the server. Furthermore, the Next.js slim backend is hosted using Azure Container Apps.
 
 ## <a name="scenario"></a>Scenario explaned
 
