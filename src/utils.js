@@ -22,10 +22,20 @@ export function validateEntry(entry) {
     return entry && requiredProperties.every(prop => entry.hasOwnProperty(prop));
 }
 
-export function buildMessage(name, text, language, translateLanguage, type = 'message', role = 'Agent') {
+function formatTime(date) {
+    return date.toLocaleTimeString([], {
+        hourCycle: 'h23',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+export function buildMessage(name, text, language, type = 'message', role = 'Agent') {
     const date = new Date();
     const nameId = name.replace(' ', '_');
-    return { id: `${date.getTime()}`, timestamp: language ? date.toLocaleTimeString(language) : date.toTimeString(), name, text, role, type, language, translateLanguage, participantId: nameId, translation: undefined };
+    const message = { id: `${date.getTime()}`, timestamp: formatTime(date), name, text, role, type, language, participantId: nameId, translation: undefined };
+    message[language] = text;
+    return message;
 }
 
 export async function getConfig() {

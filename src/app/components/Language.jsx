@@ -15,7 +15,7 @@ export default function Language({ lalbel, value, onChange, helper }) {
                 value={value}
                 label=""
                 onChange={handleChange}>
-                {value && <MenuItem value=""><em>None</em></MenuItem>}
+                {/* {value && <MenuItem value=""><em>None</em></MenuItem>} */}
                 <MenuItem value="he-IL">Hebrew</MenuItem>
                 <MenuItem value="en-US">English</MenuItem>
                 <MenuItem value="ar-IL">Arabic</MenuItem>

@@ -196,14 +196,25 @@ az containerapp show \
 * Web PubSub for Socket.IO: for the real-time, duplex communication between the client and the server.
 * Speech service: for the speech-to-text transcription capbilites.
 * Translator service: for the translation capabilities.
-* Container registry webhook: Container reagistry webhook to be used by the Container App.
+
+
+## Improve recognition accuracy with custom speech
+[What is custom speech?](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-speech-overview)
+
+#### How does it work?
+With custom speech, you can upload your own data, test and train a custom model, compare accuracy between models, and deploy a model to a custom endpoint.
+
+![Custom Speech](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/media/custom-speech/custom-speech-overview.png)
 
 
 ## <a name="links"></a>Links
-
+* [Use continuous speech recognition](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-recognize-speech?pivots=programming-language-javascript#use-continuous-recognition)
+* [Speech React browser-based JavaScript sample](https://github.com/Azure-Samples/AzureSpeechReactSample)
+* [Implement language identification](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-identification?tabs=once&pivots=programming-language-javascript)
 * [How to use conversation summarization](https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/how-to/conversation-summarization)
 * [Build a real-time code-streaming app by using Socket.IO and host it on Azure](https://learn.microsoft.com/en-us/azure/azure-web-pubsub/socketio-build-realtime-code-streaming-app)
 * [Update and deploy changes in Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/revisions)
 * [Language support for document and conversation summarization](https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/language-support)
+* [Language and voice support for the Speech service](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts#prebuilt-neural-voices)
 * [Socket.io Server options](https://socket.io/docs/v4/server-options/)
 * [az containerapp](https://learn.microsoft.com/en-us/cli/azure/containerapp?view=azure-cli-latest)

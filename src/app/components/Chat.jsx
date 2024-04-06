@@ -5,12 +5,12 @@ import { validateEntry } from '../../utils';
 
 const columns = [
     {
-        width: 80,
-        label: 'Timestamp',
+        width: 60,
+        label: 'Time',
         dataKey: 'timestamp',
     },
     {
-        width: 50,
+        width: 60,
         label: 'Name',
         dataKey: 'name',
     },
@@ -67,7 +67,7 @@ function rowContent(_index, row) {
     );
 }
 
-export default function Chat({ name, entries }) {
+export default function Chat({ name, entries, language }) {
     const [rows, setRows] = useState([]);
     useEffect(() => {
         if (!entries) return;
@@ -76,14 +76,14 @@ export default function Chat({ name, entries }) {
             return {
                 timestamp: entry.timestamp,
                 name: (entry.name === name) ? 'Me' : entry.name,
-                text: (entry.name === name) ? entry.text : entry.translation
+                text: (!!entry[language]) ? entry[language] : entry.text
             };
         });
         setRows(tmp);
     }, [entries, name]);
 
     return (
-        <Paper style={{ height: 400, width: '100%' }}>
+        <Paper style={{ height: 500, width: '95%' }}>
             <TableVirtuoso
                 data={rows}
                 components={VirtuosoTableComponents}

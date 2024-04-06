@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { Grid, Stack, Box, TextField, Typography, LinearProgress, Button } from '@mui/material';
+import { Grid, Stack, Box, TextField, Typography, LinearProgress, Button, FormControlLabel, Checkbox } from '@mui/material';
 import { Mic, MicNone, Summarize, DeleteSweep, SyncAlt } from '@mui/icons-material';
 import { translate, summarize, buildMessage, Status, getConfig } from '../utils';
 import { Language, Name, Summarization, Chat } from './components';
-import { startSttFromMic, stopSttFromMic } from '../stt';
+import { startSttFromMic, stopSttFromMic, speakText } from '../stt';
 import { registerSocket, sendMessage, syncMessages, clearMessages } from '../socket';
 
 export default function App() {
@@ -15,24 +15,34 @@ export default function App() {
     const [recognizedText, setRecognizedText] = useState('');
     const [recognizingText, setRecognizingText] = useState('');
     const [language, setLanguage] = useState('he-IL');
-    const [translateLanguage, setTranslateLanguage] = useState('en-US');
+    const [partnerLanguage, setPartnerLanguage] = useState('en-US');
     const [name, setName] = useState('');
     const [config, setConfig] = useState(undefined);
     const [socketEntry, setSocketEntry] = useState(undefined);
+    const [speak, setSpeak] = useState(false);
 
     useEffect(() => {
         if (!socketEntry) return;
-        if (!name) return;
+        if (!!name && socketEntry.name === name) return;
         if (!entries) return;
         if (!setEntries) return;
-        if (socketEntry.name === name) return;
         if (socketEntry.type !== 'message') return;
         if (entries.findIndex((entry) => entry.id === socketEntry.id) !== -1) return;
-        const copy = [socketEntry, ...entries];
-        copy.sort((a, b) => b.id.localeCompare(a.id));
-        setEntries(copy);
-    }, [socketEntry, name, entries, setEntries]);
 
+        const translateEntry = async (entry) => {
+            if (!entry[language]) {
+                entry[language] = await translate(entry.text, partnerLanguage, language, status, setStatus);
+                const copy = [entry, ...entries];
+                copy.sort((a, b) => b.id.localeCompare(a.id));
+                setEntries(copy);
+
+                if (speak)
+                    speakText(entry[language]);
+            }
+        }
+
+        translateEntry(socketEntry);
+    }, [socketEntry, name, entries, setEntries]);
 
     useEffect(() => {
         const fetchConfig = async () => {
@@ -58,30 +68,9 @@ export default function App() {
     }, [config]);
 
     useEffect(() => {
-        if (entries.length === 0) return;
-        if (entries.every(item => !!item.translation)) return;
-
-        const untranslated = entries.filter((entry) => !entry.translation);
-        if (untranslated.length === 0) return;
-
-        const translateEntries = async () => {
-            const translated = await Promise.all(entries.map(async (entry) => {
-                if (!entry.translation) {
-                    entry.translation = await translate(entry.text, language, translateLanguage, status, setStatus);
-                    sendMessage && sendMessage(entry);
-                }
-                return entry;
-            }));
-            setEntries(translated);
-        }
-
-        translateEntries();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [entries]);
-
-    useEffect(() => {
         if (!recognizedText) return;
-        const entry = buildMessage(name, recognizedText, language, translateLanguage);
+        const entry = buildMessage(name, recognizedText, language);
+        sendMessage && sendMessage(entry);
         setEntries([entry, ...entries])
         setRecognizingText('');
         setStatus((status | Status.LISTENING) & ~Status.RECOGNIZING);
@@ -103,7 +92,7 @@ export default function App() {
 
     async function handleStartSttClick() {
         setStatus(Status.INITIALIZING);
-        await startSttFromMic(language, setRecognizingText, setRecognizedText, status, setStatus);
+        await startSttFromMic(language, speak, setRecognizingText, setRecognizedText, status, setStatus);
         setStatus(Status.LISTENING);
     }
 
@@ -113,16 +102,20 @@ export default function App() {
         setStatus(Status.IDLE);
     }
 
+    function handleSpeakChange(event) {
+        setSpeak(event.target.checked);
+    }
+
     return (
         <Box>
-            <Grid container spacing={4}>
+            <Grid container spacing={2} margin={1}>
                 <Grid item xs={12}>
                     <Typography variant="h4" component="div" gutterBottom paddingLeft={2}>
                         The Client-Side of Azure AI Services
                     </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                    <Stack spacing={4} direction="row" maxWidth={200}>
+                    <Stack spacing={2} direction="row" maxWidth={200}>
                         <Name value={name} lalbel="Name" onChange={setName} fullWidth />
                         <Language
                             lalbel="Spoken language"
@@ -131,13 +124,13 @@ export default function App() {
                         />
                         <Language
                             lalbel="Translated language"
-                            value={translateLanguage}
-                            onChange={setTranslateLanguage}
+                            value={partnerLanguage}
+                            onChange={setPartnerLanguage}
                         />
                     </Stack>
                 </Grid>
                 <Grid item xs={12}>
-                    <Stack spacing={4} direction="row" maxWidth={200}>
+                    <Stack spacing={2} direction="row" maxWidth={200}>
                         {status & Status.ACTIVE ?
                             <Button variant="outlined" startIcon={<MicNone />} onClick={async () => await handleStopSttClick()} disabled={!name && (status & Status.ACTIVE) === 0}>
                                 Stop
@@ -150,12 +143,22 @@ export default function App() {
                         <Button variant="outlined" startIcon={<Summarize />} onClick={handleSummarizeClick} disabled={entries.length < 1}>
                             Summarize
                         </Button>
+                    </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                    <Stack spacing={2} direction="row" maxWidth={200}>
                         <Button variant="outlined" startIcon={<SyncAlt />} onClick={syncMessages} disabled={entries.length < 1}>
                             Sync
                         </Button>
                         <Button variant="outlined" startIcon={<DeleteSweep />} onClick={clearMessages} disabled={entries.length < 1}>
                             Clear
                         </Button>
+                        <FormControlLabel control={
+                            <Checkbox
+                                checked={speak}
+                                onChange={handleSpeakChange}
+                            />
+                        } label="Speak" />
                     </Stack>
                 </Grid>
                 <Grid item xs={12}>
