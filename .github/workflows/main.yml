@@ -13,5 +13,14 @@ jobs:
           uses: azure/login@v1
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
-        - name: Build and push aiservices image to ACR (${{ vars.CONTAINER_REGISTRY }})
-          run: az acr build --image aiservices:latest --registry ${{ vars.CONTAINER_REGISTRY }} --resource-group ${{ vars.RESOURCE_GROUP }} --file ./Dockerfile .
+        - name: Build and push ${{ vars.CONTAINER_APP_NAME }} image to ACR (${{ vars.CONTAINER_REGISTRY }})
+          run: az acr build --image ${{ vars.CONTAINER_APP_NAME }}:latest --registry ${{ vars.CONTAINER_REGISTRY }} --resource-group ${{ vars.RESOURCE_GROUP }} --file ./Dockerfile .
+        - name: Build and deploy Container App
+          uses: azure/container-apps-deploy-action@v1
+          with:
+            acrName: ${{ vars.CONTAINER_REGISTRY }}
+            containerAppName: ${{ vars.CONTAINER_APP_NAME }}
+            resourceGroup: ${{ vars.RESOURCE_GROUP }}
+            imageToDeploy: ${{ vars.CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_APP_NAME }}:latest        
+            # imageToDeploy: myregistry.azurecr.io/app:${{ github.sha }}        
+        
