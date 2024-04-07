@@ -198,6 +198,12 @@ az containerapp show \
 * Translator service: for the translation capabilities.
 
 
+## <a name="improve"></a>Adding aiservices role
+
+az role assignment create --assignee <CONTAINER_APP_PRINCIPAL_ID> --role Contributor --scope /subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.ContainerRegistry/registries/$CONTAINER_REGISTRY
+
+
+
 ## Improve recognition accuracy with custom speech
 [What is custom speech?](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-speech-overview)
 
