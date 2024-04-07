@@ -15,6 +15,8 @@ jobs:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
         - name: Build and push ${{ vars.CONTAINER_APP_NAME }} image to ACR (${{ vars.CONTAINER_REGISTRY }})
           run: az acr build --image ${{ vars.CONTAINER_APP_NAME }}:latest --registry ${{ vars.CONTAINER_REGISTRY }} --resource-group ${{ vars.RESOURCE_GROUP }} --file ./Dockerfile .
+        - name: retag image with sha
+          run: az acr import --name ${{ vars.CONTAINER_REGISTRY }} --source ${{ vars.CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_APP_NAME }}:latest --image ${{ vars.CONTAINER_APP_NAME }}:${{ github.sha }} --force
         - name: Build and deploy Container App
           uses: azure/container-apps-deploy-action@v1
           with:
