@@ -39,7 +39,10 @@ module.exports = function (app) {
         socket.on('message', addEntry);
         socket.on('sync', () =>
             socket.emit('sync', entries));
-        socket.on('clear', () => entries = []);
+        socket.on('clear', () => {
+            entries = [];
+            io.emit('sync', entries);
+        });
         socket.on('disconnect', () => addEntry({ type: 'disconnect', timestamp: new Date().toISOString() }));
     });
 
