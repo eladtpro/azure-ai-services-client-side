@@ -176,7 +176,8 @@ Now you can access the app at the URL of the Azure Container App.
 
 ![App](/assets/application-screenshot.png)
 
-* Listen: Start the speech-to-text transcription.
+* **Listen**: Start the speech-to-text transcription, this will use the [Speech to text SDK for JavaScript package](https://learn.microsoft.com/en-us/javascript/api/microsoft-cognitiveservices-speech-sdk/?view=azure-node-latest).  
+On the listener side each recognized phrase will be translated to the selected language using the **Trabslation** service REST API.
 * Summarize: Summarize the conversation.
 
 

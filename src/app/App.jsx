@@ -100,8 +100,8 @@ export default function App() {
         await startSttFromMic(language, speak, setRecognizingText, setRecognizedText, status, setStatus);
     }
 
-    async function handleStopSttClick(status, setStatus) {
-        await stopSttFromMic(stopSttFromMic);
+    async function handleStopSttClick() {
+        await stopSttFromMic(status, setStatus);
     }
 
     function handleSpeakChange(event) {
