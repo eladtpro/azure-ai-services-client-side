@@ -123,6 +123,7 @@ The command will result in a JSON output that looks like the JSON blobk bwlow,
   "managementEndpointUrl": "https://management.core.windows.net/"
 }
 ```
+![GitHub secret](/assets/repo-secrets.png)
 
 
 #### Set other enviroment variables for the GitHub action
@@ -130,9 +131,11 @@ The command will result in a JSON output that looks like the JSON blobk bwlow,
 At the GItHub repo setting, move to the **Variables** tab.
 1. Set the **CONTAINER_REGISTRY** variable to the name of the Azure Container Registry.
 2. Set the **RESOURCE_GROUP** variable for the resource group where you Container registry.
+3. Set the **CONTAINER_APP_NAME** variable to the name of the Azure Container App.
 
+![GitHub environment variables](/assets/repo-vars.png)
 
-## <a name="local"></a>Running it locally
+## <a name="local"></a>Run it locally
 After creating the Azure resources and setting up the environment, you can run the Next.js app locally.
 
 ```
@@ -140,7 +143,8 @@ npm install
 npm run dev
 ```
 
-after the app is running, you can access it at [http://localhost:3000](http://localhost:3000)
+This command will start the Next.js server on port 3000, the server will also will serve the client-side static files.
+After the app is running, you can access it locally at [http://localhost:3000](http://localhost:3000)
 
 
 ## <a name="containerapp"></a>Run it  as Azure Container App
@@ -162,10 +166,11 @@ az containerapp show \
 ```
 
 
-> You can also get the Application Url on the Container App resource overview blade.
+> **Note:** You can also get the Application Url on the Container App resource overview blade.
 
 
-We are done with setup part. Now you can access the app at the FQDN of the Azure Container App.
+We are done with setup part.  
+Now you can access the app at the URL of the Azure Container App.
 
 ## Sample Application - how to use it
 

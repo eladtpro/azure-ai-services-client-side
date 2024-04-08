@@ -22,9 +22,9 @@ export default function App() {
     const [speak, setSpeak] = useState(false);
 
     useEffect(() => {
-        if (!socketEntry || !name || !!setEntries) return;
+        if (!socketEntry || !name || !setEntries) return;
         if (!socketEntry || socketEntry.name === name || socketEntry.type !== 'message') return;
-        if (!entries || !entries.length) return;
+        if (!entries) return;
 
         const translateEntry = async (entry) => {
             if (!entry[language]) {
@@ -47,7 +47,8 @@ export default function App() {
         }
 
         translateEntry(socketEntry);
-    }, [socketEntry, name, entries, setEntries]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [socketEntry]);
 
     useEffect(() => {
         const fetchConfig = async () => {
@@ -96,15 +97,11 @@ export default function App() {
     }
 
     async function handleStartSttClick() {
-        setStatus(Status.INITIALIZING);
         await startSttFromMic(language, speak, setRecognizingText, setRecognizedText, status, setStatus);
-        setStatus(Status.LISTENING);
     }
 
-    async function handleStopSttClick() {
-        setStatus(Status.STOPPING);
+    async function handleStopSttClick(status, setStatus) {
         await stopSttFromMic(stopSttFromMic);
-        setStatus(Status.IDLE);
     }
 
     function handleSpeakChange(event) {
@@ -167,7 +164,7 @@ export default function App() {
                     </Stack>
                 </Grid>
                 <Grid item xs={12}>
-                    <Chat entries={entries} name={name} />
+                    <Chat entries={entries} name={name} language={language} />
                 </Grid>
                 <Grid item xs={5}>
                     {(status & Status.ACTIVE) !== 0 && (status & Status.RECOGNIZING ? <LinearProgress /> : <LinearProgress variant="determinate" value={0} />)}

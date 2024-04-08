@@ -23,6 +23,7 @@ export function speakText(text) {
 }
 
 export async function startSttFromMic(language, speak, setRecognizingText, setRecognizedText, status, setStatus) {
+    setStatus(Status.INITIALIZING);
     const tokenObj = await getSpeechToken();
     const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.token, tokenObj.region);
     if (language)
@@ -82,22 +83,18 @@ export async function startSttFromMic(language, speak, setRecognizingText, setRe
             logText(`"CANCELED: ErrorDetails=${e.errorDetails}`);
             logText("CANCELED: Did you set the speech resource key and region values?");
         }
-
-        recognizer.stopContinuousRecognitionAsync();
-        recognizer.close();
-        recognizer = undefined;
+        stopSttFromMic(status, setStatus);
     };
 
     recognizer.sessionStopped = (s, e) => {
         logText("\n    Session stopped event.");
-        recognizer.stopContinuousRecognitionAsync();
-        recognizer.close();
-        recognizer = undefined;
+        stopSttFromMic(status, setStatus);
     };
 
     logText('speak into your microphone...');
 
     recognizer.startContinuousRecognitionAsync();
+    setStatus(status | Status.LISTENING);
 }
 
 export function changeLanguage(language) {
@@ -106,7 +103,8 @@ export function changeLanguage(language) {
     }
 }
 
-export async function stopSttFromMic() {
+export async function stopSttFromMic(status, setStatus) {
+    setStatus(Status.STOPPING);
     if (recognizer) {
         recognizer.stopContinuousRecognitionAsync();
         recognizer.close();
@@ -116,4 +114,5 @@ export async function stopSttFromMic() {
         synthesizer.close();
         synthesizer = undefined;
     }
+    setStatus(Status.IDLE);
 }
