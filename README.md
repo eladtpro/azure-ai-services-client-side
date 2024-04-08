@@ -174,10 +174,20 @@ Now you can access the app at the URL of the Azure Container App.
 
 ## Sample Application - how to use it
 
-![App](/assets/application-screenshot.png)
+
+![App](/assets/demo-80-110.gif)
+
 
 * **Listen**: Start the speech-to-text transcription, this will use the [Speech to text SDK for JavaScript package](https://learn.microsoft.com/en-us/javascript/api/microsoft-cognitiveservices-speech-sdk/?view=azure-node-latest).  
-On the listener side each recognized phrase will be translated to the selected language using the **Trabslation** service REST API.
+```
+    const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.token, tokenObj.region);
+    const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
+    recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
+    // register the event handlers
+    ...
+    recognizer.startContinuousRecognitionAsync();
+```
+* **Translate**: On the listener side each recognized phrase will be translated to the selected language using the Trabslation service REST API.
 * Summarize: Summarize the conversation.
 
 
@@ -233,3 +243,6 @@ In this solution, we have demonstrated how to use the client-side of Azure AI Se
 * [Language and voice support for the Speech service](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts#prebuilt-neural-voices)
 * [Socket.io Server options](https://socket.io/docs/v4/server-options/)
 * [az containerapp](https://learn.microsoft.com/en-us/cli/azure/containerapp?view=azure-cli-latest)
+
+
+![App](/assets/demo-full.gif)
