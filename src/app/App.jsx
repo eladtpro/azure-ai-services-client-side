@@ -22,17 +22,22 @@ export default function App() {
     const [speak, setSpeak] = useState(false);
 
     useEffect(() => {
-        if (!socketEntry) return;
-        if (!!name && socketEntry.name === name) return;
-        if (!entries) return;
-        if (!setEntries) return;
-        if (socketEntry.type !== 'message') return;
-        if (entries.findIndex((entry) => entry.id === socketEntry.id) !== -1) return;
+        if (!socketEntry || !name || !!setEntries) return;
+        if (!socketEntry || socketEntry.name === name || socketEntry.type !== 'message') return;
+        if (!entries || !entries.length) return;
 
         const translateEntry = async (entry) => {
             if (!entry[language]) {
-                entry[language] = await translate(entry.text, partnerLanguage, language, status, setStatus);
-                const copy = [entry, ...entries];
+                entry[language] = await translate(entry.text, entry.language, language, status, setStatus);
+
+                const index = entries.findIndex((entry) => entry.id === socketEntry.id);
+                let copy = undefined;
+                if (index < 0)
+                    copy = [entry, ...entries];
+                else {
+                    copy = [...entries];
+                    copy[index] = entry;
+                }
                 copy.sort((a, b) => b.id.localeCompare(a.id));
                 setEntries(copy);
 
@@ -170,7 +175,7 @@ export default function App() {
                         id="outlined-multiline-static"
                         label="Listening..."
                         multiline
-                        rows={2}
+                        rows={5}
                         value={recognizingText}
                         fullWidth
                         error={!!(status & Status.NOMATCH)}

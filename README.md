@@ -190,12 +190,25 @@ We are done with setup part. Now you can access the app at the FQDN of the Azure
 
 
 ## <a name="improve"></a>Improve recognition accuracy with custom speech
-[What is custom speech?](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-speech-overview)
+> Source: [What is custom speech?](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-speech-overview)
 
 #### How does it work?
 With custom speech, you can upload your own data, test and train a custom model, compare accuracy between models, and deploy a model to a custom endpoint.
 
 ![Custom Speech](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/media/custom-speech/custom-speech-overview.png)
+
+
+Here's more information about the sequence of steps shown in the previous diagram:
+
+1. [Create a project](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-custom-speech-create-project) and choose a model. Use a [Speech resource](https://portal.azure.com/#create/Microsoft.CognitiveServicesSpeechServices) that you create in the Azure portal. If you train a custom model with audio data, choose a Speech resource region with dedicated hardware for training audio data. For more information, see footnotes in the [regions](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/regions#speech-service) table.
+2. [Upload test data](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-custom-speech-upload-data). Upload test data to evaluate the speech to text offering for your applications, tools, and products.
+3. [Test recognition quality](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-custom-speech-inspect-data). Use the [Speech Studio](https://aka.ms/speechstudio/customspeech) to play back uploaded audio and inspect the speech recognition quality of your test data.
+4. [Test model quantitatively](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-custom-speech-evaluate-data). Evaluate and improve the accuracy of the speech to text model. The Speech service provides a quantitative word error rate (WER), which you can use to determine if more training is required.
+5. [Train a model](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-custom-speech-train-model). Provide written transcripts and related text, along with the corresponding audio data. Testing a model before and after training is optional but recommended.
+6. [Deploy a model](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-custom-speech-deploy-model). Once you're satisfied with the test results, deploy the model to a custom endpoint. Except for [batch transcription](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/batch-transcription), you must deploy a custom endpoint to use a custom speech model.
+
+
+
 
 
 ## <a name="con"></a>Conclusion
