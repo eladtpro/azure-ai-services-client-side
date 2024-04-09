@@ -15,14 +15,17 @@ In the solution we will use the client-side of the Azure AI Services. The app's 
 
 ![Steps](/assets/steps.png)
 
+---
 
 [Prerequisites](#prerequisites)  
 [Prepare the environment](#prepare)  
-[Running it locally](#local)  
-[Provision Azure Container App as a Next.js backend](#containerapp)  
-[Resources Deployed in this solution (Azure)](#resources)
-[Improve recognition accuracy with custom speech](#improve)
-[Links](#links)
+[Run it locally](#local)  
+[Run it  as Azure Container App](#containerapp)  
+[Sample Application - how to use it](#app)  
+[Resources Deployed in this solution (Azure)](#resources)  
+[Improve recognition accuracy with custom speech](#improve)  
+[Conclusion](#con)  
+[Links](#links)  
 
 
 
@@ -171,7 +174,7 @@ az containerapp show \
 We are done with setup part.  
 Now you can access the app at the URL of the Azure Container App.
 
-## Sample Application - how to use it
+## <a name="app"></a>Sample Application - how to use it
 
 ![App](/assets/demo-80-110.gif)
 ![App](/assets/buttons.png)
