@@ -2,12 +2,12 @@
 ![Azure AI Services](/assets/services.png)
 
 
-The purpose of this solution is to enable apps to incorporate AI capabilities. In the upcoming demo, I will demonstrate how to **transcribe**, **translate**, **summarize** and **speech** conversations between customers and businesses without making significant modifications to your existing apps.
+The purpose of this solution is to enable applications to incorporate AI capabilities. In the upcoming demo, I will showcase how to **transcribe**, **translate**, **summarize**, and **speech** conversations between customers and businesses without significantly modifying your existing apps.
 
-This app can be useful in various scenarios where two parties speak different languages and require simultaneous translation.  
-For example, **it can be employed in call centers, where the representative and the customer do not speak the same language, by bank tellers dealing with foreign clients, by doctors communicating with elderly patients who do not speak the native language well**, and in other similar situations where both parties need to converse in their respective native languages.
+This application can be helpful in various scenarios where two parties speak different languages and require simultaneous translation. For instance, it can be employed in **call centers** where the representative and the customer do not speak the same language, by **bank tellers dealing with foreign clients**, by **doctors communicating with elderly patients** who do not speak the native language well, and in other similar situations where both parties need to converse in their respective native languages.
 
-In the solution we will use the client-side of the Azure AI Services. The app's backend is a slim **Next.js** Node.js server that uses Azure Web PubSub for **Socket.IO** to provide real-time, duplex communication between the client and the server. Furthermore, the Next.js slim backend is hosted using **Azure Container Apps**.
+We will use the **React.js** client-side SDK and REST APIs of the **Azure AI Services** in this solution. The application's backend is a slim **Next.js** Node.js server that uses **Azure Web PubSub for Socket.IO**
+ to provide real-time, duplex communication between the client and the server. Furthermore, the Next.js slim backend is hosted using Azure Container Apps.
 
 ## <a name="scenario"></a>Scenario explaned
 
@@ -43,21 +43,15 @@ In the solution we will use the client-side of the Azure AI Services. The app's 
 
 ## <a name="prepare"></a>Prepare the environment
 
-#### Get the repository
+#### Clone the repository
 
-[Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) this repository to your enviroment.
-
-> **Optional**: configure Git to pull changes from the upstream repository into the local clone of your fork
-> git remote set-url origin https://github.com/> userName/New_Repo
-> git remote add upstream https://github.com/userName/Repo
-> git push origin master
-> git push --all
-
+```
+git clone https://github.com/eladtpro/azure-ai-services-client-side.git
+```
 
 #### Set the Next.js environment variables (.env)
-> **Note:** Next.js local server is using the .env file to load the environment variables. The .env file should be created in the root of the project.
-> **Important**: The .env file should NOT be commited to the repository.
-> Use the [env.sample](/env.sample) template, create a new .env file in the project root and replace the placeholders with the actual values.
+> **Note**: The Next.js local server requires loading environment variables from the .env file. Use the [env.sample](/env.sample) template to create a new .env file in the project root and replace the placeholders with the actual values.
+> **Important**: It is essential to keep in mind that the .env file should NEVER be committed to the repository.
 
 The .env file should look like this:
 ```
@@ -78,10 +72,9 @@ TRANSLATE_REGION=westeurope
 ```
 
 #### Set the environment variables for the setup.sh script (.env.sh)
-> **Note:** [setup.sh](/setup.sh) script creates the Azure Container App resource that will run the Next.js server. The script is using the .env.sh file to load the environment variables. The .env.sh file should be created in the root of the project.
-> Use the [env.sh.sample](/env.sample) template, create a new .env.sh file in the project root and replace the placeholders with the actual values.
-> **Important**: The .env.sh file should NOT be commited to the repository.
-> **Important**: The .env.sh file is dependent on the .env file we have created in the previous step.
+> **Note**: To set up the Azure Container App resource running the Next.js server, you need to set the environment variables for the [setup.sh](/setup.sh) script. The script uses the .env.sh file to load these variables, which should be created at the project's root. You can use the [.env.sh.sample](/.env.sample) template to create a new .env.sh file in the project root. Replace the placeholders in the template with the actual values.
+> **Important**: The .env.sh file must NOT be committed to the repository.
+> **Important**: The .env.sh file depends on the .env file we created in the previous step.
 
 The .env.sh file should look like this:
 ```
@@ -98,9 +91,9 @@ LOGS_WORKSPACE_KEY=<LOGS_WORKSPACE_KEY>
 SUBSCRIPTION_ID=<SUBSCRIPTION_ID>
 ```
 
-#### Create service principal (App registration) and save it as GitHub secret
+#### Create a service principal (App registration) and save it as a GitHub secret
 
-> The app registration service principal is used by the GitHub action for two roles, one role for pushing the images to the ACR, second role for deploying Azure Container Apps. for that the service principal should have the **Contributor** role at the Azure resource group.
+> **Note**: The GitHub action employs the app registration service principal to handle two roles. First, it pushes the images to the Azure Container Registry (ACR). Second, it deploys Azure Container Apps. To perform these roles, the service principal must have a **Contributor** role on the Azure resource group.
 
 ```
 # login to azure
@@ -108,9 +101,9 @@ az login
 # create an service principle at the resource group level
 az ad sp create-for-rbac --name aiservices-github --role Contributor --scopes /subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP} --sdk-auth
 ```
+The below command will result a JSON formatted output that looks like the JSON block below,
+Copy the output and save it in a [GitHub secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) named AZURE_CREDENTIALS.
 
-The command will result in a JSON output that looks like the JSON blobk bwlow,
-**Copy the output and save it in a** [**GitHub secret**](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) named AZURE_CREDENTIALS.:
 
 ```
 {
@@ -146,13 +139,12 @@ npm install
 npm run dev
 ```
 
-This command will start the Next.js server on port 3000, the server will also will serve the client-side static files.
-After the app is running, you can access it locally at [http://localhost:3000](http://localhost:3000)
+This command will start the Next.js server on port 3000. The server will also serve the client-side static files.
+After the app is running, you can access it locally at [http://localhost:3000](http://localhost:3000).
 
+## <a name="containerapp"></a>Run it as an Azure Container App
 
-## <a name="containerapp"></a>Run it  as Azure Container App
-
-Run the [setup.sh](/setup.sh) script to create the Azure Container App resource that will run the Next.js server on Azure.
+Run the [setup.sh](/setup.sh) script to create the Azure Container App resource to run the Next.js server on Azure.
 
 ```
 az login
@@ -160,7 +152,7 @@ az login
 ```
 
 Wait for the app to be deployed, the result will be the FQDN of the Azure Container App. 
-You can get the FQDN by running the following command:
+> **Note**: You can get the FQDN by running the following command:
 ```
 az containerapp show \
   --name $CONTAINER_APP_NAME \
@@ -171,12 +163,12 @@ az containerapp show \
 
 > **Note:** You can also get the Application Url on the Container App resource overview blade.
 
-We are done with setup part.  
-Now you can access the app at the URL of the Azure Container App.
+We have completed the setup part.  
+Now, you can access the app using the Azure Container App URL.
 
 ## <a name="app"></a>Sample Application - how to use it
 
-![App](/assets/demo-80-110.gif)
+![App](/assets/animated-80-110-800px.gif)
 ![App](/assets/buttons.png)
 
 * **Spoken language**: Select the language of the speaker.
@@ -268,7 +260,7 @@ Now you can access the app at the URL of the Azure Container App.
 ![Azure AI Services](/assets/azure-resources.png)
 
 * Container Registry: for the next.js app container image.
-* Container App (& Container App Environment)  : for the next.js app.
+* Container App (& Container App Environment): for the next.js app.
 * Language Service: for the conversation summarization.
 * Log Analytics Workspace: for the logs of the container app.
 * Web PubSub for Socket.IO: for the real-time, duplex communication between the client and the server.
@@ -296,7 +288,7 @@ Here's more information about the sequence of steps shown in the previous diagra
 
 
 ## <a name="con"></a>Conclusion
-In this solution, we have demonstrated how to use the client-side of Azure AI Services to enable apps to incorporate AI capabilities. We have shown how to transcribe, translate, summarize, and speech conversations between customers and businesses without making significant modifications to your existing apps. This app can be useful in various scenarios where two parties speak different languages and require simultaneous translation. For example, it can be employed in call centers, where the representative and the customer do not speak the same language, by bank tellers dealing with foreign clients, by doctors communicating with elderly patients who do not speak the native language well, and in other similar situations where both parties need to converse in their respective native languages.
+We demonstrated how to use Azure AI Services to enable apps to incorporate AI capabilities for transcribing, translating, summarizing, and speaking conversations between customers and businesses with minimum effort on existing apps and focusing on the client side capabilities. These features can be helpful in scenarios where two parties speak different languages, such as call centers, banks, and medical clinics.
 
 ![App](/assets/demo-full.gif)
 
