@@ -20,7 +20,7 @@ We will use the **React.js** client-side SDK and REST APIs of the **Azure AI Ser
 [Prerequisites](#prerequisites)  
 [Prepare the environment](#prepare)  
 [Run it locally](#local)  
-[Run it  as Azure Container App](#containerapp)  
+[Run it as an Azure Container App](#containerapp)  
 [Sample Application - how to use it](#app)  
 [Resources Deployed in this solution (Azure)](#resources)  
 [Improve recognition accuracy with custom speech](#improve)  
