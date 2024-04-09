@@ -168,28 +168,97 @@ az containerapp show \
 
 > **Note:** You can also get the Application Url on the Container App resource overview blade.
 
-
 We are done with setup part.  
 Now you can access the app at the URL of the Azure Container App.
 
 ## Sample Application - how to use it
 
-
 ![App](/assets/demo-80-110.gif)
+![App](/assets/buttons.png)
 
-
-* **Listen**: Start the speech-to-text transcription, this will use the [Speech to text SDK for JavaScript package](https://learn.microsoft.com/en-us/javascript/api/microsoft-cognitiveservices-speech-sdk/?view=azure-node-latest).  
+* **Spoken language**: Select the language of the speaker.
+* **Translated language**: Select the language to which the spoken language will be translated.
+* **Listen**: Start the speech-to-text transcription, this will use the [Speech to text SDK for JavaScript package](https://learn.microsoft.com/en-us/javascript/api/microsoft-cognitiveservices-speech-sdk/?view=azure-node-latest).
+> Reference code: [stt.js](/src/stt.js):   
 ```
+    // stt.js
+    // intialize the speech recognizer
     const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.token, tokenObj.region);
     const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
     recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
     // register the event handlers
     ...
+    // listen and transcribe
     recognizer.startContinuousRecognitionAsync();
 ```
-* **Translate**: On the listener side each recognized phrase will be translated to the selected language using the Trabslation service REST API.
-* Summarize: Summarize the conversation.
+* **Stop**: Stop the speech-to-text transcription.
+> Reference code: [stt.js](/src/stt.js):   
+```
+    // stt.js
+    // stop the speech recognizer
+    recognizer.stopContinuousRecognitionAsync();
+```
+* **Translate**: On the listener side each recognized phrase will be translated to the selected language using the [Text Translation REST API](https://learn.microsoft.com/en-us/azure/ai-services/translator/reference/rest-api-guide).
+> Reference code: [utils.js](/src/utils.js):   
+```
+    // utils.js
+    ...
+    const res = await axios.post(`${config.translateEndpoint}translate?api-version=3.0&from=${from}&to=${to}`, data, headers);
+    return res.data[0].translations[0].text;
+```
+* **Summarize**: Summarize the conversation. for this we will use the Azure Language Service [Conversation Summarization API](https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/how-to/conversation-summarization).
+> Reference code: [utils.js](/src/utils.js):   
+```
+    // utils.js
+    ...
+    let res = await axios.post(`${config.languageEndpoint}language/analyze-conversations/jobs?api-version=2023-11-15-preview`, data, headers);
+    const jobId = res.headers['operation-location'];
 
+    let completed = false
+    while (!completed) {
+        res = await axios.get(`${jobId}`, headers);
+        completed = res.data.tasks.completed > 0;
+    }
+
+    const conv = res.data.tasks.items[0].results.conversations[0].summaries.map(summary => {
+        return { aspect: summary.aspect, text: summary.text }
+    });
+    return conv;
+```
+* **Speak**: The translated text will be synthesized to speech using the [Text to Speech JavaScript package](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-speech-synthesis?tabs=browserjs%2Cterminal&pivots=programming-language-javascript).
+> Reference code: [stt.js](/src/stt.js):   
+```
+    // stt.js
+    // intialize the speech synthesizer
+    speechConfig.speechSynthesisVoiceName = speakLanguage;
+    const synthAudioConfig = speechsdk.AudioConfig.fromDefaultSpeakerOutput();
+    synthesizer = new speechsdk.SpeechSynthesizer(speechConfig, synthAudioConfig);
+    ...
+    // speak the text
+    synthesizer.speakTextAsync(text,
+        function (result) {
+            if (result.reason === speechsdk.ResultReason.SynthesizingAudioCompleted) {
+                console.log("synthesis finished.");
+            } else {
+                console.error("Speech synthesis canceled, " + result.errorDetails +
+                    "\nDid you set the speech resource key and region values?");
+            }
+        });
+```
+* **Clear**: Clear the conversation history.
+> Reference code: [socket.js](/src/socket.js):   
+```
+    // socket.js
+    clearMessages = () =>
+        socket.emit('clear');
+```
+* **Sync**: Sync the conversation history between the two parties.
+> Reference code: [socket.js](/src/socket.js):   
+```
+    // socket.js
+    syncMessages = () =>
+        socket.emit('sync');
+```
 
 ## <a name="resources"></a>Resources Deployed in this solution (Azure)
 
@@ -202,7 +271,6 @@ Now you can access the app at the URL of the Azure Container App.
 * Web PubSub for Socket.IO: for the real-time, duplex communication between the client and the server.
 * Speech service: for the speech-to-text transcription capbilites.
 * Translator service: for the translation capabilities.
-
 
 
 ## <a name="improve"></a>Improve recognition accuracy with custom speech
@@ -224,11 +292,11 @@ Here's more information about the sequence of steps shown in the previous diagra
 6. [Deploy a model](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-custom-speech-deploy-model). Once you're satisfied with the test results, deploy the model to a custom endpoint. Except for [batch transcription](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/batch-transcription), you must deploy a custom endpoint to use a custom speech model.
 
 
-
-
-
 ## <a name="con"></a>Conclusion
 In this solution, we have demonstrated how to use the client-side of Azure AI Services to enable apps to incorporate AI capabilities. We have shown how to transcribe, translate, summarize, and speech conversations between customers and businesses without making significant modifications to your existing apps. This app can be useful in various scenarios where two parties speak different languages and require simultaneous translation. For example, it can be employed in call centers, where the representative and the customer do not speak the same language, by bank tellers dealing with foreign clients, by doctors communicating with elderly patients who do not speak the native language well, and in other similar situations where both parties need to converse in their respective native languages.
+
+![App](/assets/demo-full.gif)
+
 
 ## <a name="links"></a>Links
 * [Use continuous speech recognition](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-recognize-speech?pivots=programming-language-javascript#use-continuous-recognition)
@@ -245,4 +313,3 @@ In this solution, we have demonstrated how to use the client-side of Azure AI Se
 * [az containerapp](https://learn.microsoft.com/en-us/cli/azure/containerapp?view=azure-cli-latest)
 
 
-![App](/assets/demo-full.gif)
