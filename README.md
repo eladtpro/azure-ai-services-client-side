@@ -2,7 +2,7 @@
 ![Azure AI Services](/assets/services.png)
 
 
-The purpose of this solution is to enable applications to incorporate AI capabilities. In the upcoming demo, I will showcase how to **transcribe**, **translate**, **summarize**, and **speech** conversations between customers and businesses without significantly modifying your existing apps.
+The purpose of this solution is to enable applications to incorporate AI capabilities. In the upcoming demo, I will showcase how to **transcribe and speech (Azure AI Speech)**, **translate (Azure AI Translator)** and **summarize (Azure AI Language)** conversations between customers and businesses without significantly modifying your existing apps.
 
 This application can be helpful in various scenarios where two parties speak different languages and require simultaneous translation. For instance, it can be employed in **call centers** where the representative and the customer do not speak the same language, by **bank tellers dealing with foreign clients**, by **doctors communicating with elderly patients** who do not speak the native language well, and in other similar situations where both parties need to converse in their respective native languages.
 
