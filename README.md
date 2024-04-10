@@ -31,7 +31,7 @@ We will use the **React.js** client-side SDK and REST APIs of the **Azure AI Ser
 
 ## <a name="prerequisites"></a>Prerequisites
 
-> **Note:** This solution focus on the client-side of Azure AI Services. In order to keep the solution simple we will create the souronding resources manually using the Azure portal.
+> **Note:** This solution focus on the client-side of Azure AI Services. In order to keep the solution simple we will create the surrounding resources manually using the Azure portal.
 
 * Active Azure subscription. If you don't have an Azure subscription, you can [create one for free](https://azure.microsoft.com/free/cognitive-services/)
 * [Create a Speech resource](https://portal.azure.com/#create/Microsoft.CognitiveServicesSpeechServices) in the Azure portal.
@@ -122,7 +122,7 @@ Copy the output and save it in a [GitHub secret](https://docs.github.com/en/acti
 ![GitHub secret](/assets/repo-secrets.png)
 
 
-#### Set other enviroment variables for the GitHub action
+#### Set other environment variables for the GitHub action
 
 At the GItHub repo setting, move to the **Variables** tab.
 1. Set the **CONTAINER_REGISTRY** variable to the name of the Azure Container Registry.
