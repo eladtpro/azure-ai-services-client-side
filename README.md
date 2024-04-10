@@ -9,7 +9,7 @@ This application can be helpful in various scenarios where two parties speak dif
 We will use the **React.js** client-side SDK and REST APIs of the **Azure AI Services** in this solution. The application's backend is a slim **Next.js** Node.js server that uses **Azure Web PubSub for Socket.IO**
  to provide real-time, duplex communication between the client and the server. Furthermore, the Next.js slim backend is hosted using Azure Container Apps.
 
-## <a name="scenario"></a>Scenario explaned
+## Scenario explained
 
 ![Diagram](/assets/Translator.png)
 
