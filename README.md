@@ -36,7 +36,7 @@ We will use the **React.js** client-side SDK and REST APIs of the **Azure AI Ser
 * Active Azure subscription. If you don't have an Azure subscription, you can [create one for free](https://azure.microsoft.com/free/cognitive-services/)
 * [Create a Speech resource](https://portal.azure.com/#create/Microsoft.CognitiveServicesSpeechServices) in the Azure portal.
 * [Create a Translator resource](https://portal.azure.com/#create/Microsoft.CognitiveServicesTextTranslation) in the Azure portal.
-* [create a Language resource](https://portal.azure.com/#create/Microsoft.CognitiveServicesTextAnalytics) in the Azure portal
+* [Create a Language resource](https://portal.azure.com/#create/Microsoft.CognitiveServicesTextAnalytics) in the Azure portal
 * [Create a Container Registry](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal?tabs=azure-cli) in the Azure portal.
 * Create Azure Web PubSub for Socket.IO resource using [this guide](https://learn.microsoft.com/en-us/azure/azure-web-pubsub/socketio-quickstart)
 
@@ -101,7 +101,7 @@ az login
 # create an service principle at the resource group level
 az ad sp create-for-rbac --name aiservices-github --role Contributor --scopes /subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP} --sdk-auth
 ```
-The below command will result a JSON formatted output that looks like the JSON block below,
+The command above will result a JSON formatted output that looks like the JSON block below,
 Copy the output and save it in a [GitHub secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) named AZURE_CREDENTIALS.
 
 
@@ -151,7 +151,8 @@ az login
 ./setup.sh
 ```
 
-Wait for the app to be deployed, the result will be the FQDN of the Azure Container App. 
+Wait for the app to be deployed, **the result will be the FQDN of the Azure Container App**.  
+
 > **Note**: You can get the FQDN by running the following command:
 ```
 az containerapp show \
@@ -259,12 +260,12 @@ Now, you can access the app using the Azure Container App URL.
 
 ![Azure AI Services](/assets/azure-resources.png)
 
-* Container Registry: for the next.js app container image.
-* Container App (& Container App Environment): for the next.js app.
+* Container Registry: for the Next.js app container image.
+* Container App (& Container App Environment): for the Next.js app.
 * Language Service: for the conversation summarization.
 * Log Analytics Workspace: for the logs of the container app.
 * Web PubSub for Socket.IO: for the real-time, duplex communication between the client and the server.
-* Speech service: for the speech-to-text transcription capbilites.
+* Speech service: for the speech-to-text transcription capabilities.
 * Translator service: for the translation capabilities.
 
 
